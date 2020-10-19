@@ -45,9 +45,6 @@ webconfig = os.environ.get('WEBCONFIG', "/etc/apache2/vhosts.d")
 webroot = os.environ.get('WEBROOT', "/srv/www")
 tftproot = os.environ.get('TFTPROOT', "/srv/tftpboot")
 
-webcontent = webroot + "/cobbler_webui_content"
-webimages = webcontent + "/images"
-
 
 #####################################################################
 # # Helper Functions #################################################
@@ -518,7 +515,6 @@ if __name__ == "__main__":
             "simplejson",
             "netaddr",
             "Cheetah3",
-            "Django",
             "pymongo",
             "distro",
             "ldap3",
@@ -560,9 +556,6 @@ if __name__ == "__main__":
             ("%s/snippets" % libpath, glob("autoinstall_snippets/*", recursive=True)),
             ("%s/scripts" % libpath, glob("autoinstall_scripts/*")),
             ("%s" % libpath, ["config/cobbler/distro_signatures.json"]),
-            ("share/cobbler/web", glob("web/*.*")),
-            ("%s" % webcontent, glob("web/static/*")),
-            ("%s" % webimages, glob("web/static/images/*")),
             ("share/cobbler/bin", glob("scripts/*.sh")),
             ("share/cobbler/web/templates", glob("web/templates/*")),
             ("%s/webui_sessions" % libpath, []),

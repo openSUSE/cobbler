@@ -28,7 +28,6 @@ import urllib.request
 import urllib.parse
 import urllib.error
 import xmlrpc.server
-import cgi
 
 
 def application(environ, start_response):

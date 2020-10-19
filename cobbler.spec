@@ -265,24 +265,6 @@ mirrors, kickstart templating, integrated yum mirroring, and built-in
 DHCP/DNS Management. Cobbler has a XML-RPC API for integration with
 other applications.
 
-
-%package web
-Summary:        Web interface for Cobbler
-Requires:       cobbler = %{version}-%{release}
-%if ! (%{defined python_enable_dependency_generator} || %{defined python_disable_dependency_generator})
-Requires:       %{py3_module_django}
-Requires:       %{apache_mod_wsgi}
-%endif
-%if 0%{?fedora} || 0%{?rhel}
-Requires:       mod_ssl
-%endif
-Requires(post): coreutils
-Requires(post): sed
-
-%description web
-Web interface for Cobbler that allows visiting
-http://server/cobbler_web to configure the install server.
-
 %package tests
 Summary:        Unit tests for cobbler
 Requires:       cobbler = %{version}-%{release}
@@ -334,13 +316,6 @@ mv %{buildroot}%{_sysconfdir}/cobbler/cobblerd.service %{buildroot}%{_unitdir}
 %if 0%{?suse_version}
 ln -sf service %{buildroot}%{_sbindir}/rccobblerd
 %endif
-
-# cobbler-web
-rm %{buildroot}%{_sysconfdir}/cobbler/cobbler_web.conf
-
-# ghosted files
-touch %{buildroot}%{_sharedstatedir}/cobbler/web.ss
-chmod 0600 %{buildroot}%{_sharedstatedir}/cobbler/web.ss
 
 
 %pre
@@ -509,24 +484,6 @@ sed -i -e "s/SECRET_KEY = ''/SECRET_KEY = \'$RAND_SECRET\'/" %{_datadir}/cobbler
 %{_sharedstatedir}/cobbler
 %exclude %{_sharedstatedir}/cobbler/webui_sessions
 %{_localstatedir}/log/cobbler
-
-%files web
-%license COPYING
-%doc AUTHORS.in README.md
-%config(noreplace) %{apache_webconfigdir}/cobbler_web.conf
-%if "%{_vendor}" == "debbuild"
-# Work around broken attr support
-# Cf. https://github.com/debbuild/debbuild/issues/160
-%{_datadir}/cobbler/web
-%ghost %{_sharedstatedir}/cobbler/web.ss
-%dir %{_sharedstatedir}/cobbler/webui_sessions
-%{apache_dir}/cobbler_webui_content/
-%else
-%attr(-,%{apache_user},%{apache_group}) %{_datadir}/cobbler/web
-%ghost %attr(0660,%{apache_user},root) %{_sharedstatedir}/cobbler/web.ss
-%dir %attr(700,%{apache_user},root) %{_sharedstatedir}/cobbler/webui_sessions
-%attr(-,%{apache_user},%{apache_group}) %{apache_dir}/cobbler_webui_content/
-%endif
 
 %files tests
 %dir %{_datadir}/cobbler/tests
