@@ -428,7 +428,6 @@ class restorestate(statebase):
             self.warn("%s does not exist. Skipping" % self.statepath)
             return
         self._copy(os.path.join(self.statepath, 'collections'), libpath)
-        self._copy(os.path.join(self.statepath, 'cobbler_web.conf'), webconfig)
         self._copy(os.path.join(self.statepath, 'cobbler.conf'), webconfig)
         self._copy(os.path.join(self.statepath, 'modules.conf'), etcpath)
         self._copy(os.path.join(self.statepath, 'settings'), etcpath)
@@ -460,7 +459,6 @@ class savestate(statebase):
         if not self.dry_run:
             os.makedirs(self.statepath)
         self._copy(os.path.join(libpath, 'collections'), self.statepath)
-        self._copy(os.path.join(webconfig, 'cobbler_web.conf'), self.statepath)
         self._copy(os.path.join(webconfig, 'cobbler.conf'), self.statepath)
         self._copy(os.path.join(etcpath, 'modules.conf'), self.statepath)
         self._copy(os.path.join(etcpath, 'settings'), self.statepath)
@@ -537,7 +535,6 @@ if __name__ == "__main__":
         configure_files=[
             "config/cobbler/settings",
             "config/apache/cobbler.conf",
-            "config/apache/cobbler_web.conf",
             "config/service/cobblerd.service",
         ],
         man_pages=[
@@ -550,7 +547,6 @@ if __name__ == "__main__":
             ("sbin", ["bin/tftpd.py"]),
             ("sbin", ["bin/fence_ipmitool"]),
             ("%s" % webconfig, ["build/config/apache/cobbler.conf"]),
-            ("%s" % webconfig, ["build/config/apache/cobbler_web.conf"]),
             ("%s/templates" % libpath, glob("autoinstall_templates/*")),
             ("%s/templates/install_profiles" % libpath, glob("autoinstall_templates/install_profiles/*")),
             ("%s/snippets" % libpath, glob("autoinstall_snippets/*", recursive=True)),
@@ -563,7 +559,6 @@ if __name__ == "__main__":
             ("%s/cobbler/misc" % webroot, glob("misc/*")),
             # Configuration
             ("%s" % etcpath, ["build/config/apache/cobbler.conf",
-                              "build/config/apache/cobbler_web.conf",
                               "build/config/service/cobblerd.service",
                               "build/config/cobbler/settings"]),
             ("%s/settings.d" % etcpath, glob("config/cobbler/settings.d/*")),
