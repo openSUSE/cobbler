@@ -680,8 +680,6 @@ if __name__ == "__main__":
             ("%s/cobbler/images" % webroot, []),
             # A script that isn't really data, wsgi script
             ("%s/cobbler/svc/" % webroot, ["svc/services.py"]),
-            # A script that isn't really data, wsgi script
-            ("share/cobbler/web/", ["cobbler/web/settings.py"]),
             # zone-specific templates directory
             ("%s/zone_templates" % etcpath, glob("templates/zone_templates/*")),
             ("%s" % etcpath, ["config/cobbler/logging_config.conf"]),

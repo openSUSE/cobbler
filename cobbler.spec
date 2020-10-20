@@ -388,12 +388,6 @@ chown %{apache_user}:root %{_sharedstatedir}/cobbler/webui_sessions
 chmod 700 %{_sharedstatedir}/cobbler/webui_sessions
 chown %{apache_user}:%{apache_group} %{apache_dir}/cobbler_webui_content/
 %endif
-# Change the SECRET_KEY option in the Django settings.py file
-# required for security reasons, should be unique on all systems
-# Choose from letters and numbers only, so no special chars like ampersand (&).
-RAND_SECRET=$(head /dev/urandom | tr -dc 'A-Za-z0-9!' | head -c 50 ; echo '')
-sed -i -e "s/SECRET_KEY = ''/SECRET_KEY = \'$RAND_SECRET\'/" %{_datadir}/cobbler/web/settings.py
-
 
 %files
 %license COPYING
