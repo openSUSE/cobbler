@@ -523,7 +523,6 @@ if __name__ == "__main__":
             "distro",
             "ldap3",
             "dnspython",
-            "tornado",
             "file-magic"
         ],
         extras_require={"lint": ["pyflakes", "pycodestyle"], "test": ["pytest", "pytest-cov", "codecov"]},
@@ -550,8 +549,6 @@ if __name__ == "__main__":
             'docs/cobbler.rst'
         ],
         data_files=[
-            # tftpd, hide in /usr/sbin
-            ("sbin", ["bin/tftpd.py"]),
             ("sbin", ["bin/fence_ipmitool"]),
             ("%s" % webconfig, ["build/config/apache/cobbler.conf"]),
             ("%s" % webconfig, ["build/config/apache/cobbler_web.conf"]),

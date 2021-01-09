@@ -45,7 +45,6 @@ RUN touch /var/lib/rpm/* &&   \
     python3-netaddr           \
     python3-simplejson        \
     python3-cheetah           \
-    python3-tornado           \
     python3-django            \
     python3-magic             \
     python3-dns               \
