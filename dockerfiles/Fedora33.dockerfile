@@ -34,7 +34,6 @@ RUN yum install -y          \
     python3-cheetah         \
     python3-netaddr         \
     python3-simplejson      \
-    python3-tornado         \
     python3-django          \
     python3-dns             \
     python3-ldap3           \

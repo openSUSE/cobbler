@@ -39,7 +39,6 @@ RUN yum install -y          \
     python36-PyYAML         \
     python36-netaddr        \
     python36-simplejson     \
-    python36-tornado        \
     python36-django         \
     python36-dns            \
     python36-ldap3          \
