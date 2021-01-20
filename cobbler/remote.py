@@ -218,13 +218,18 @@ class CobblerXMLRPCInterface(object):
         """
         Run a full Cobbler sync in the background.
 
-        :param options: Not known what this parameter does.
+        :param options: Possible options: verbose, dhcp, dns
         :param token: The API-token obtained via the login() method. The API-token obtained via the login() method.
         :return: The id of the task which was started.
         :rtype: str
         """
         def runner(self):
-            self.remote.api.sync(self.options.get("verbose", False), logger=self.logger)
+            what = []
+            if self.options.get("dhcp", False):
+                what.append('dhcp')
+            if self.options.get("dns", False):
+                what.append('dns')
+            self.remote.api.sync(self.options.get("verbose", False), what=what, logger=self.logger)
         return self.__start_task(runner, token, "sync", "Sync", options)
 
     def background_hardlink(self, options, token):

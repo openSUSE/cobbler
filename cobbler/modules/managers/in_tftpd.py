@@ -28,7 +28,7 @@ import cobbler.utils as utils
 import cobbler.tftpgen as tftpgen
 
 from cobbler.cexceptions import CX
-
+from cobbler.manager import ManagerModule
 
 def register():
     """
@@ -37,9 +37,10 @@ def register():
     return "manage"
 
 
-class InTftpdManager(object):
+class _InTftpdManager(ManagerModule):
 
-    def what(self):
+    @staticmethod
+    def what():
         """
         Static method to identify the manager.
 
@@ -48,33 +49,10 @@ class InTftpdManager(object):
         return "in_tftpd"
 
     def __init__(self, collection_mgr, logger):
-        """
-        Constructor
+        super().__init__(collection_mgr, logger)
 
-        :param collection_mgr: The collection manager to resolve all information with.
-        :param logger: The logger to audit all actions with.
-        """
-        self.logger = logger
-        if self.logger is None:
-            self.logger = clogger.Logger()
-
-        self.collection_mgr = collection_mgr
-        self.templar = templar.Templar(collection_mgr)
         self.tftpgen = tftpgen.TFTPGen(collection_mgr, self.logger)
-        self.systems = collection_mgr.systems()
         self.bootloc = collection_mgr.settings().tftpboot_location
-
-    def regen_hosts(self):
-        """
-        Not used
-        """
-        pass
-
-    def write_dns_files(self):
-        """
-        Not used
-        """
-        pass
 
     def write_boot_files_distro(self, distro):
         # Collapse the object down to a rendered datastructure.
@@ -185,6 +163,8 @@ class InTftpdManager(object):
         self.tftpgen.make_pxe_menu()
 
 
+manager = None
+
 def get_manager(collection_mgr, logger):
     """
     Creates a manager object to manage an in_tftp server.
@@ -193,4 +173,8 @@ def get_manager(collection_mgr, logger):
     :param logger: The logger to audit all actions with.
     :return: The object to manage the server with.
     """
-    return InTftpdManager(collection_mgr, logger)
+    global manager
+
+    if not manager:
+        manager = _InTftpdManager(collection_mgr, logger)
+    return manager

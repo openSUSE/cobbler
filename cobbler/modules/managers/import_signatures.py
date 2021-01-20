@@ -44,6 +44,7 @@ from cobbler.cexceptions import CX
 import cobbler.templar as templar
 import cobbler.utils as utils
 import cobbler.items.repo as item_repo
+from cobbler.manager import ManagerModule
 
 
 def register():
@@ -84,29 +85,9 @@ def import_walker(top, func, arg):
             import_walker(name, func, arg)
 
 
-class ImportSignatureManager(object):
+class _ImportSignatureManager(ManagerModule):
 
-    def __init__(self, collection_mgr, logger):
-        """
-        Constructor
-
-        :param collection_mgr: This is the collection manager which has every information in Cobbler available.
-        :param logger: This is the logger to audit all actions with.
-        """
-        self.logger = logger
-        self.collection_mgr = collection_mgr
-        self.api = collection_mgr.api
-        self.distros = collection_mgr.distros()
-        self.profiles = collection_mgr.profiles()
-        self.systems = collection_mgr.systems()
-        self.settings = collection_mgr.settings()
-        self.repos = collection_mgr.repos()
-        self.templar = templar.Templar(collection_mgr)
-
-        self.signature = None
-        self.found_repos = {}
-
-    # required function for import modules
+    @staticmethod
     def what(self):
         """
         Identifies what service this manages.
@@ -114,6 +95,12 @@ class ImportSignatureManager(object):
         :return: Always will return ``import/signatures``.
         """
         return "import/signatures"
+
+    def __init__(self, collection_mgr, logger):
+        super().__init__(collection_mgr, logger)
+
+        self.signature = None
+        self.found_repos = {}
 
     def get_file_lines(self, filename):
         """
@@ -800,6 +787,8 @@ class ImportSignatureManager(object):
 # ==========================================================================
 
 
+manager = None
+
 def get_import_manager(config, logger):
     """
     Get an instance of the import manager which enables you to import various things.
@@ -808,4 +797,8 @@ def get_import_manager(config, logger):
     :param logger: The logger to audit all actions with.
     :return: The object to import data with.
     """
-    return ImportSignatureManager(config, logger)
+    global manager
+
+    if not manager:
+        manager = _ImportSignatureManager(collection_mgr, logger)
+    return manager

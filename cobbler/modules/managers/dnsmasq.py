@@ -27,6 +27,7 @@ import time
 
 import cobbler.templar as templar
 import cobbler.utils as utils
+from cobbler.manager import ManagerModule
 
 from cobbler.utils import _
 from cobbler.cexceptions import CX
@@ -41,58 +42,26 @@ def register():
     return "manage"
 
 
-class DnsmasqManager(object):
+class _DnsmasqManager(ManagerModule):
     """
     Handles conversion of internal state to the tftpboot tree layout.
     """
 
-    def __init__(self, collection_mgr, logger, dhcp=None):
-        """
-        Constructor
-
-        :param collection_mgr: The collection manager to resolve all information with.
-        :param logger: The logger to audit all actions with.
-        :param dhcp: This parameter is unused currently.
-        """
-        self.logger = logger
-        self.collection_mgr = collection_mgr
-        self.api = collection_mgr.api
-        self.distros = collection_mgr.distros()
-        self.profiles = collection_mgr.profiles()
-        self.systems = collection_mgr.systems()
-        self.settings = collection_mgr.settings()
-        self.repos = collection_mgr.repos()
-        self.templar = templar.Templar(collection_mgr)
-
-    def what(self):
+    @staticmethod
+    def what():
         """
         This identifies the module.
 
         :return: Will always return ``dnsmasq``.
         """
+
         return "dnsmasq"
 
-    def write_dhcp_lease(self, port, host, ip, mac):
-        """
-        Not used
 
-        :param port: Unused in this module implementation.
-        :param host: Unused in this module implementation.
-        :param ip: Unused in this module implementation.
-        :param mac: Unused in this module implementation.
-        """
-        pass
+    def __init__(self, collection_mgr, logger):
+        super().__init__(collection_mgr, logger)
 
-    def remove_dhcp_lease(self, port, host):
-        """
-        Not used
-
-        :param port: Unused in this module implementation.
-        :param host: Unused in this module implementation.
-        """
-        pass
-
-    def write_dhcp_file(self):
+    def write_configs(self):
         """
         DHCP files are written when manage_dhcp is set in ``/etc/cobbler/settings``.
         """
@@ -220,14 +189,7 @@ class DnsmasqManager(object):
                     fh.write(ip + "\t" + host + "\n")
         fh.close()
 
-    def write_dns_files(self):
-        """
-        Not used
-        """
-        # already taken care of by the regen_hosts()
-        pass
-
-    def sync_dhcp(self):
+    def restart_service(self):
         """
         This restarts the dhcp server and thus applied the newly written config files.
         """
@@ -240,6 +202,8 @@ class DnsmasqManager(object):
                 raise CX(error_msg)
 
 
+manager = None
+
 def get_manager(collection_mgr, logger):
     """
     Creates a manager object to manage a dnsmasq server.
@@ -248,4 +212,8 @@ def get_manager(collection_mgr, logger):
     :param logger: The logger to audit all actions with.
     :return: The object generated from the class.
     """
-    return DnsmasqManager(collection_mgr, logger)
+    global manager
+
+    if not manager:
+        manager = _DnsmasqManager(collection_mgr, logger)
+    return manager

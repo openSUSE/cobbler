@@ -21,13 +21,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 02110-1301  USA
 """
 
-from builtins import str
-from builtins import object
 import time
 import copy
 
-import cobbler.templar as templar
 import cobbler.utils as utils
+from cobbler.manager import ManagerModule
 
 from cobbler.cexceptions import CX
 from cobbler.utils import _
@@ -40,9 +38,10 @@ def register():
     return "manage"
 
 
-class IscManager(object):
+class _IscManager(ManagerModule):
 
-    def what(self):
+    @staticmethod
+    def what():
         """
         Static method to identify the manager.
 
@@ -50,25 +49,13 @@ class IscManager(object):
         """
         return "isc"
 
+    # ToDo: Get rid of logger
     def __init__(self, collection_mgr, logger):
-        """
-        Constructor
+        super().__init__(collection_mgr, logger)
 
-        :param collection_mgr: The collection manager to resolve all information with.
-        :param logger: The logger to audit all actions with.
-        """
-        self.logger = logger
-        self.collection_mgr = collection_mgr
-        self.api = collection_mgr.api
-        self.distros = collection_mgr.distros()
-        self.profiles = collection_mgr.profiles()
-        self.systems = collection_mgr.systems()
-        self.settings = collection_mgr.settings()
-        self.repos = collection_mgr.repos()
-        self.templar = templar.Templar(collection_mgr)
         self.settings_file = utils.dhcpconf_location(self.api)
 
-    def write_dhcp_file(self):
+    def write_configs(self):
         """
         DHCP files are written when ``manage_dhcp`` is set in ``/etc/cobbler/settings``.
         """
@@ -78,7 +65,7 @@ class IscManager(object):
 
         try:
             f2 = open(template_file, "r")
-        except:
+        except Exception:
             raise CX(_("error reading template: %s") % template_file)
         template_data = ""
         template_data = f2.read()
@@ -189,7 +176,7 @@ class IscManager(object):
                 # Explicitly declare filename for other (non x86) archs as in DHCP discover package mostly the
                 # architecture cannot be differed due to missing bits...
                 if distro is not None and not interface.get("filename"):
-                    if distro.arch == "ppc" or  distro.arch == "ppc64":
+                    if distro.arch == "ppc" or distro.arch == "ppc64":
                         interface["filename"] = yaboot
                     elif distro.arch == "ppc64le":
                         interface["filename"] = "grub/grub.ppc64le"
@@ -231,31 +218,26 @@ class IscManager(object):
             self.logger.info("generating %s" % self.settings_file)
         self.templar.render(template_data, metadata, self.settings_file, None)
 
-    def regen_ethers(self):
+    def restart_service(self):
         """
-        ISC/BIND doesn't use this. It is there for compability reasons with other managers.
-        """
-        pass
-
-    def sync_dhcp(self):
-        """
-        This syncs the dhcp server with it's new config files. Basically this restarts the service to apply the changes.
+        This syncs the dhcp server with it's new config files.
+        Basically this restarts the service to apply the changes.
         """
         restart_dhcp = str(self.settings.restart_dhcp).lower()
         service_name = utils.dhcp_service_name(self.api)
+        rc = 0
         if restart_dhcp != "0":
             rc = utils.subprocess_call(self.logger, "dhcpd -t -q", shell=True)
             if rc != 0:
-                error_msg = "dhcpd -t failed"
-                self.logger.error(error_msg)
-                raise CX(error_msg)
+                self.logger.error("dhcpd -t failed")
             service_restart = "service %s restart" % service_name
             rc = utils.subprocess_call(self.logger, service_restart, shell=True)
             if rc != 0:
-                error_msg = "%s failed" % service_name
-                self.logger.error(error_msg)
-                raise CX(error_msg)
+                self.logger.error("%s service failed" % (service_name))
+        return rc
 
+
+manager = None
 
 def get_manager(collection_mgr, logger):
     """
@@ -265,4 +247,8 @@ def get_manager(collection_mgr, logger):
     :param logger: The logger to audit all actions with.
     :return: The object to manage the server with.
     """
-    return IscManager(collection_mgr, logger)
+    global manager
+
+    if not manager:
+        manager = _IscManager(collection_mgr, logger)
+    return manager

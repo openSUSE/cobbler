@@ -33,7 +33,7 @@ import cobbler.templar as templar
 import cobbler.utils as utils
 from cobbler.cexceptions import CX
 from cobbler.utils import _
-
+from cobbler.manager import ManagerModule
 
 def register():
     """
@@ -42,7 +42,7 @@ def register():
     return "manage"
 
 
-class BindManager(object):
+class _BindManager(ManagerModule):
 
     def what(self):
         """
@@ -53,24 +53,8 @@ class BindManager(object):
         return "bind"
 
     def __init__(self, collection_mgr, logger):
-        """
-        Constructor to create a default BindManager object.
+        super().__init__(collection_mgr, logger)
 
-        :param collection_mgr: The collection manager to resolve all information with.
-        :param logger: This is used to audit all actions with.
-        """
-        self.logger = logger
-        if self.logger is None:
-            self.logger = clogger.Logger()
-
-        self.collection_mgr = collection_mgr
-        self.api = collection_mgr.api
-        self.distros = collection_mgr.distros()
-        self.profiles = collection_mgr.profiles()
-        self.systems = collection_mgr.systems()
-        self.settings = collection_mgr.settings()
-        self.repos = collection_mgr.repos()
-        self.templar = templar.Templar(collection_mgr)
         self.settings_file = utils.namedconf_location(self.api)
         self.zonefile_base = utils.zonefile_base(self.api)
 
@@ -618,7 +602,7 @@ zone "%(arpa)s." {
                 self.logger.info("generating (reverse) %s" % zonefilename)
             self.templar.render(template_data, metadata, zonefilename, None)
 
-    def write_dns_files(self):
+    def write_configs(self):
         """
         BIND files are written when manage_dns is set in ``/var/lib/cobbler/settings``.
         """
@@ -627,6 +611,21 @@ zone "%(arpa)s." {
         self.__write_secondary_conf()
         self.__write_zone_files()
 
+    def restart_service(self):
+        """
+        This syncs the bind server with it's new config files.
+        Basically this restarts the service to apply the changes.
+        """
+        named_service_name = utils.named_service_name(self.api)
+        dns_restart_command = "service %s restart" % named_service_name
+        rc = utils.subprocess_call(self.logger, dns_restart_command, shell=True)
+        if rc != 0:
+            self.logger.error("%s service failed" % (named_service_name))
+        return rc
+
+
+
+manager = None
 
 def get_manager(collection_mgr, logger):
     """
@@ -636,4 +635,8 @@ def get_manager(collection_mgr, logger):
     :param logger: The logger to audit all actions with.
     :return: The BindManger object to manage bind with.
     """
-    return BindManager(collection_mgr, logger)
+    global manager
+
+    if not manager:
+        manager = _BindManager(collection_mgr, logger)
+    return manager

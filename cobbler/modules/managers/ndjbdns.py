@@ -29,6 +29,7 @@ import subprocess
 
 import cobbler.clogger as clogger
 import cobbler.templar as templar
+from cobbler.manager import ManagerModule
 
 
 def register():
@@ -38,34 +39,9 @@ def register():
     return "manage"
 
 
-def get_manager(config, logger):
-    """
-    Get the DNS Manger object.
+class _NDjbDnsManager(ManagerModule):
 
-    :param config: Unused parameter.
-    :param logger: The logger to audit the actions with.
-    :return: The manager object.
-    """
-    return NDjbDnsManager(config, logger)
-
-
-class NDjbDnsManager(object):
-
-    def __init__(self, config, logger):
-        """
-        This class can manage a New-DJBDNS server.
-
-        :param config: Currently an usused parameter.
-        :param logger: The logger to audit the actions with.
-        """
-        self.logger = logger
-        if self.logger is None:
-            self.logger = clogger.Logger()
-
-        self.config = config
-        self.systems = config.systems()
-        self.templar = templar.Templar(config)
-
+    @staticmethod
     def what(self):
         """
         Static method to identify the manager.
@@ -74,13 +50,10 @@ class NDjbDnsManager(object):
         """
         return "ndjbdns"
 
-    def regen_hosts(self):
-        """
-        Empty stub method to have compability with other dns managers who need this.
-        """
-        pass
+    def __init__(self, config, logger):
+        super().__init__(collection_mgr, logger)
 
-    def write_dns_files(self):
+    def write_configs(self):
         """
         This writes the new dns configuration file to the disc.
         """
@@ -114,3 +87,20 @@ class NDjbDnsManager(object):
 
         if p.returncode != 0:
             raise Exception('Could not regenerate tinydns data file.')
+
+
+manager = None
+
+def get_manager(collection_mgr, logger):
+    """
+    Creates a manager object to manage an isc dhcp server.
+
+    :param collection_mgr: The collection manager which holds all information in the current Cobbler instance.
+    :param logger: The logger to audit all actions with.
+    :return: The object to manage the server with.
+    """
+    global manager
+
+    if not manager:
+        manager = _NDjbDnsManager(collection_mgr, logger)
+    return manager
