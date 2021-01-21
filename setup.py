@@ -44,6 +44,7 @@ httpd_service = os.environ.get('HTTPD_SERVICE', "apache2.service")
 webconfig = os.environ.get('WEBCONFIG', "/etc/apache2/vhosts.d")
 webroot = os.environ.get('WEBROOT', "/srv/www")
 tftproot = os.environ.get('TFTPROOT', "/srv/tftpboot")
+bind_zonefiles = os.environ.get('ZONEFILES', "/var/lib/named/")
 
 webcontent = webroot + "/cobbler_webui_content"
 webimages = webcontent + "/images"

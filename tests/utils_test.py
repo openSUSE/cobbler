@@ -1146,16 +1146,6 @@ def test_namedconf_location():
     assert result == "/etc/named.conf"
 
 
-def test_zonefile_base():
-    # Arrange
-
-    # Act
-    result = utils.zonefile_base(None)
-
-    # Assert
-    assert result == "/var/lib/named/"
-
-
 def test_dhcp_service_name():
     # Arrange
 

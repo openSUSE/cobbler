@@ -56,7 +56,7 @@ class _BindManager(ManagerModule):
         super().__init__(collection_mgr, logger)
 
         self.settings_file = utils.namedconf_location(self.api)
-        self.zonefile_base = utils.zonefile_base(self.api)
+        self.zonefile_base = self.settings.bind_zonefile_path + "/"
 
     def regen_hosts(self):
         """

@@ -2487,23 +2487,6 @@ def namedconf_location(api):
         return "/etc/named.conf"
 
 
-def zonefile_base(api):
-    """
-    This determines the base directory for the zone files which are important for the named service which Cobbler tries
-    to configure.
-
-    :param api: This parameter is currently unused.
-    :return: One of "/etc/bind/db.", "/var/lib/named/", "/var/named/". The result depends on the distro used.
-    """
-    (dist, _) = os_release()
-    if dist == "debian" or dist == "ubuntu":
-        return "/etc/bind/db."
-    if dist == "suse":
-        return "/var/lib/named/"
-    else:
-        return "/var/named/"
-
-
 def dhcp_service_name(api):
     """
     Determine the dhcp service which is different on various distros. This is currently a hardcoded detection.
