@@ -91,6 +91,8 @@ DEFAULTS = {
     "ldap_tls_keyfile": ["", "str"],
     "bind_manage_ipmi": [0, "bool"],
     "manage_dhcp": [0, "bool"],
+    "enable_dhcpv6": [1, "bool"],
+    "enable_dhcpv4": [1, "bool"],
     "manage_dns": [0, "bool"],
     "manage_forward_zones": [[], "list"],
     "manage_reverse_zones": [[], "list"],
