@@ -1340,6 +1340,12 @@ class CobblerAPI(object):
         if 'dns' in what:
             self.logger.info("dns syncing")
             self.sync_dns(verbose=verbose)
+        if 'ips' in what:
+            ip_manager = self.get_module_from_file(
+                "ip_sync",
+                "module",
+                "managers.ip_sync").get_manager(self._collection_mgr, logger)
+            ip_manager.sync(verbose=verbose)
 
 
     # ==========================================================================

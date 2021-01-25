@@ -229,6 +229,8 @@ class CobblerXMLRPCInterface(object):
                 what.append('dhcp')
             if self.options.get("dns", False):
                 what.append('dns')
+            if self.options.get("ips", False):
+                what.append('ips')
             self.remote.api.sync(self.options.get("verbose", False), what=what, logger=self.logger)
         return self.__start_task(runner, token, "sync", "Sync", options)
 

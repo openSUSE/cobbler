@@ -26,6 +26,7 @@ import copy
 import errno
 import glob
 import netaddr
+import socket
 import os
 import random
 import re
@@ -172,6 +173,31 @@ def pretty_hex(ip, length=8):
         hexval = '0' * (length - len(hexval)) + hexval
     return hexval.upper()
 
+def get_ips_from_dns(host):
+    """
+    Returns a list of IPv4 and IPv6 addresses from a given host
+    as retrieved via DNS.
+    Could raise a CX exception if host is invalid.
+
+    :param host: hostname or fqdn of the host for which IP addresses are fetched
+    :rtype: tuple
+    return: A tuple: First IPv4 address and first IPv6 address found of the host
+    """
+
+    ipv4 = None
+    ipv6 = None
+
+    try:
+        res = socket.getaddrinfo(host, None, 0, socket.SOCK_STREAM,\
+                                 socket.SOL_TCP)
+        for r in res:
+            if r[0] == socket.AF_INET and not ipv4:
+                ipv4 = r[4][0]
+            elif r[0] == socket.AF_INET6 and not ipv6:
+                ipv6 = r[4][0]
+    except (IndexError, socket.gaierror):
+        raise CX('Host %s is invalid.' % (host))
+    return ipv4, ipv6
 
 def get_host_ip(ip, shorten=True):
     """

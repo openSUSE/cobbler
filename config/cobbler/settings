@@ -245,6 +245,11 @@ enable_dhcpv6: 1
 # Other dhcp modules ignore this and above settings
 enable_dhcpv4: 1
 
+# set to 1 if IP address for DHCP configuration should be fetched from
+# DNS server, based on the hostname of an interface.
+# Once fetched, the IP address will be stored as part of the interface data.
+dig_ip_from_dns: 1
+
 # set to 1 to enable Cobbler's DNS management features.
 # the choice of DNS mangement engine is in /etc/cobbler/modules.conf
 manage_dns: 0
