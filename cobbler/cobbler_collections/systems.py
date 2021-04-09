@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 02110-1301  USA
 """
 
-from cobbler.actions import litesync
+from cobbler.actions import sync
 from cobbler.cobbler_collections import collection
 from cobbler.items import system as system
 from cobbler import utils
@@ -61,7 +61,8 @@ class Systems(collection.Collection):
                 if with_triggers:
                     utils.run_triggers(self.collection_mgr.api, obj, "/var/lib/cobbler/triggers/delete/system/pre/*", [])
                 if with_sync:
-                    lite_sync = litesync.CobblerLiteSync(self.collection_mgr)
+                    lite_sync = sync.CobblerSync(self.collection_mgr)
+                    lite_sync.make_tftpboot()
                     lite_sync.remove_single_system(name)
             self.lock.acquire()
             try:

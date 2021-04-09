@@ -24,7 +24,7 @@ from threading import Lock
 from typing import Optional
 
 from cobbler import utils
-from cobbler.actions import litesync
+from cobbler.actions import sync
 from cobbler.items import package, system, item as item_base, image, profile, repo, mgmtclass, distro, file
 
 from cobbler.cexceptions import CX, NotImplementedException
@@ -344,7 +344,7 @@ class Collection:
             ref.mtime = now
 
         if self.lite_sync is None:
-            self.lite_sync = litesync.CobblerLiteSync(self.collection_mgr)
+            self.lite_sync = sync.CobblerSync(self.collection_mgr)
 
         # migration path for old API parameter that I've renamed.
         if with_copy and not save:
@@ -381,15 +381,19 @@ class Collection:
                     # we don't need openvz containers to be network bootable
                     if ref.virt_type == "openvz":
                         ref.netboot_enabled = False
+                    self.lite_sync.make_tftpboot()
                     self.lite_sync.add_single_system(ref.name)
                 elif isinstance(ref, profile.Profile):
                     # we don't need openvz containers to be network bootable
                     if ref.virt_type == "openvz":
                         ref.enable_menu = False
+                    self.lite_sync.make_tftpboot()
                     self.lite_sync.add_single_profile(ref.name)
                 elif isinstance(ref, distro.Distro):
+                    self.lite_sync.make_tftpboot()
                     self.lite_sync.add_single_distro(ref.name)
                 elif isinstance(ref, image.Image):
+                    self.lite_sync.make_tftpboot()
                     self.lite_sync.add_single_image(ref.name)
                 elif isinstance(ref, repo.Repo):
                     pass
@@ -403,6 +407,7 @@ class Collection:
                     print("Internal error. Object type not recognized: %s" % type(ref))
             if not with_sync and quick_pxe_update:
                 if isinstance(ref, system.System):
+                    self.lite_sync.make_tftpboot()
                     self.lite_sync.update_system_netboot_status(ref.name)
 
             # save the tree, so if neccessary, scripts can examine it.
