@@ -253,11 +253,13 @@ class TFTPGen:
                 raise CX("internal error, invalid arch supplied")
 
             # for tftp only ...
-            if working_arch in ["i386", "x86", "x86_64", "arm", "aarch64", "ppc64le", "ppc64el", "standard"]:
+            if working_arch in ["i386", "x86", "x86_64", "arm", "aarch64", "ppc64le", "ppc64el", "ppc64", "standard"]:
                 # ToDo: This is old, move this logic into item_system.get_config_filename()
                 pass
 
-            elif working_arch == "ppc" or working_arch == "ppc64":
+            # FIXME why is this ppc-specific code needed at all?
+            # we can boot ppc64le which never executed this
+            elif working_arch == "ppc":
                 # Determine filename for system-specific bootloader config
                 filename = "%s" % system.get_config_filename(interface=name).lower()
                 # to inherit the distro and system's boot_loader values correctly
