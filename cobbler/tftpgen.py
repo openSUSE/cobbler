@@ -685,12 +685,15 @@ class TFTPGen:
 
         if distro and distro.os_version.startswith("esxi") and filename is not None:
             append_line = "BOOTIF=%s" % (os.path.basename(filename))
-        elif "initrd_path" in metadata and arch not in [Archs.PPC, Archs.PPC64, Archs.ARM]:
+        # FIXME why do we have arch-specific handling here?
+        # Shouldn't this depend on bootloader?
+        elif "initrd_path" in metadata and arch not in [Archs.PPC]:
             append_line = "append initrd=%s" % (metadata["initrd_path"])
         else:
             append_line = "append "
         append_line = "%s%s" % (append_line, kernel_options)
-        if arch in [Archs.PPC, Archs.PPC64]:
+        # FIXME presumably this is required for yaboot but that should depend on bootloader, not arch
+        if arch in [Archs.PPC]:
             # remove the prefix "append"
             # TODO: this looks like it's removing more than append, really not sure what's up here...
             append_line = append_line[7:]
@@ -866,7 +869,8 @@ class TFTPGen:
         # and we choose to do it dinamically, we need to set 'ksdevice' to one of
         # the interfaces' MAC addresses in ppc systems.
         # ksdevice=bootif is not useful in yaboot, as the "ipappend" line is a pxe feature.
-        if system and arch and (arch == "ppc" or arch == "ppc64"):
+        # FIXME if it's to be done for yaboot do it for yaboot, it has nothing to do with arch
+        if system and arch and (arch == "ppc"):
             for intf in list(system.interfaces.keys()):
                 # use first interface with defined IP and MAC, since these are required
                 # fields in a DHCP entry
