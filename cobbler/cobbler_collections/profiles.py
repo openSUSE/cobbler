@@ -52,11 +52,10 @@ class Profiles(collection.Collection):
 
         :raises CX: In case the name of the object was not given or any other descendant would be orphaned.
         """
-        name = name.lower()
         if not recursive:
-            for v in self.api.systems():
-                if v.profile is not None and v.profile.lower() == name:
-                    raise CX("removal would orphan system: %s" % v.name)
+            for system in self.api.systems():
+                if system.profile is not None and system.profile == name:
+                    raise CX(f"removal would orphan system: {system.name}")
 
         obj = self.find(name=name)
         if obj is None:

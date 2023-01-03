@@ -52,7 +52,6 @@ class Files(collection.Collection):
 
         :raises CX: In case a non existent object should be deleted.
         """
-        name = name.lower()
         obj = self.find(name=name)
 
         if obj is None:
