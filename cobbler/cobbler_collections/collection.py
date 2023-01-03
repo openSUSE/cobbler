@@ -22,12 +22,17 @@ import time
 import os
 import uuid
 from threading import Lock
-from typing import List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from cobbler import utils
 from cobbler.items import package, system, item as item_base, image, profile, repo, mgmtclass, distro, file, menu
 
 from cobbler.cexceptions import CX
+
+if TYPE_CHECKING:
+    from cobbler.api import CobblerAPI
+    from cobbler.cobbler_collections.manager import CollectionManager
+    from cobbler.actions.sync import CobblerSync
 
 
 class Collection:
@@ -35,16 +40,16 @@ class Collection:
     Base class for any serializable list of things.
     """
 
-    def __init__(self, collection_mgr):
+    def __init__(self, collection_mgr: "CollectionManager"):
         """
         Constructor.
 
         :param collection_mgr: The collection manager to resolve all information with.
         """
         self.collection_mgr = collection_mgr
-        self.listing = {}
+        self.listing: Dict[str, item_base.Item] = {}
         self.api = self.collection_mgr.api
-        self.lite_sync = None
+        self.lite_sync: Optional["CobblerSync"] = None
         self.lock = Lock()
         self.logger = logging.getLogger()
 
@@ -55,13 +60,15 @@ class Collection:
         for a in list(self.listing.values()):
             yield a
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Returns size of the collection.
         """
         return len(list(self.listing.values()))
 
-    def factory_produce(self, api, seed_data):
+    def factory_produce(
+        self, api: "CobblerAPI", seed_data: Dict[str, Any]
+    ) -> item_base.Item:
         """
         Must override in subclass. Factory_produce returns an Item object from dict.
 
@@ -70,8 +77,14 @@ class Collection:
         """
         raise NotImplementedError()
 
-    def remove(self, name: str, with_delete: bool = True, with_sync: bool = True, with_triggers: bool = True,
-               recursive: bool = False):
+    def remove(
+        self,
+        name: str,
+        with_delete: bool = True,
+        with_sync: bool = True,
+        with_triggers: bool = True,
+        recursive: bool = False,
+    ) -> None:
         """
         Remove an item from collection. This method must be overridden in any subclass.
 
@@ -91,10 +104,15 @@ class Collection:
         :param name: The name of the object to retrieve from the collection.
         :return: The object if it exists. Otherwise None.
         """
-        return self.listing.get(name.lower(), None)
+        return self.listing.get(name, None)
 
-    def find(self, name: str = "", return_list: bool = False, no_errors=False,
-             **kargs: dict) -> Union[List[item_base.Item], item_base.Item, None]:
+    def find(
+        self,
+        name: str = "",
+        return_list: bool = False,
+        no_errors: bool = False,
+        **kargs: Any,
+    ) -> Union[List[item_base.Item], item_base.Item, None]:
         """
         Return first object in the collection that matches all item='value' pairs passed, else return None if no objects
         can be found. When return_list is set, can also return a list.  Empty list would be returned instead of None in
@@ -122,8 +140,8 @@ class Collection:
         # performance: if the only key is name we can skip the whole loop
         if len(kargs) == 1 and "name" in kargs and not return_list:
             try:
-                return self.listing.get(kargs["name"].lower(), None)
-            except:
+                return self.listing.get(kargs["name"], None)
+            except Exception:
                 return self.listing.get(kargs["name"], None)
 
         self.lock.acquire()
@@ -163,7 +181,7 @@ class Collection:
         'boot_loader': 'boot_loaders',
     }
 
-    def __rekey(self, _dict: dict) -> dict:
+    def __rekey(self, _dict: Dict[str, Any]) -> Dict[str, Any]:
         """
         Find calls from the command line ("cobbler system find") don't always match with the keys from the datastructs
         and this makes them both line up without breaking compatibility with either. Thankfully we don't have a LOT to
@@ -172,16 +190,16 @@ class Collection:
         :param _dict: The dict which should be remapped.
         :return: The dict which can now be understood by the cli.
         """
-        new_dict = {}
-        for x in list(_dict.keys()):
-            if x in self.SEARCH_REKEY:
-                newkey = self.SEARCH_REKEY[x]
-                new_dict[newkey] = _dict[x]
+        new_dict: Dict[str, Any] = {}
+        for key in _dict.keys():
+            if key in self.SEARCH_REKEY:
+                newkey = self.SEARCH_REKEY[key]
+                new_dict[newkey] = _dict[key]
             else:
-                new_dict[x] = _dict[x]
+                new_dict[key] = _dict[key]
         return new_dict
 
-    def to_list(self) -> list:
+    def to_list(self) -> List[item_base.Item]:
         """
         Serialize the collection
 
@@ -189,7 +207,7 @@ class Collection:
         """
         return [x.to_dict() for x in list(self.listing.values())]
 
-    def from_list(self, _list: list):
+    def from_list(self, _list: List[Dict[str, Any]]):
         """
         Create all collection object items from ``_list``.
 
@@ -202,10 +220,12 @@ class Collection:
                 item = self.factory_produce(self.api, item_dict)
                 self.add(item)
             except Exception as exc:
-                self.logger.error(f"Error while loading a collection: {exc}. Skipping this collection!")
+                self.logger.error(
+                    "Error while loading a collection: %s. Skipping this collection!",
+                    exc,
+                )
 
-
-    def copy(self, ref, newname):
+    def copy(self, ref: item_base.Item, newname: str):
         """
         Copy an object with a new name into the same collection.
 
@@ -226,7 +246,13 @@ class Collection:
 
         self.add(ref, save=True, with_copy=True, with_triggers=True, with_sync=True, check_for_duplicate_names=True)
 
-    def rename(self, ref: item_base.Item, newname, with_sync: bool = True, with_triggers: bool = True):
+    def rename(
+        self,
+        ref: item_base.Item,
+        newname: str,
+        with_sync: bool = True,
+        with_triggers: bool = True,
+    ):
         """
         Allows an object "ref" to be given a new name without affecting the rest of the object tree.
 
@@ -241,16 +267,15 @@ class Collection:
 
         # Save the old name
         oldname = ref.name
-        # Reserve the new name
-        self.listing[newname] = None
-        # Delete the old item
-        self.collection_mgr.serialize_delete_one_item(ref)
-        self.listing.pop(oldname)
-        # Change the name of the object
-        ref.name = newname
-        # Save just this item
-        self.collection_mgr.serialize_one_item(ref)
-        self.listing[newname] = ref
+        with self.lock:
+            # Delete the old item
+            self.collection_mgr.serialize_delete_one_item(ref)
+            self.listing.pop(oldname)
+            # Change the name of the object
+            ref.name = newname
+            # Save just this item
+            self.collection_mgr.serialize_one_item(ref)
+            self.listing[newname] = ref
 
         # for mgmt classes, update all objects that use it
         if ref.COLLECTION_TYPE == "mgmtclass":
@@ -328,8 +353,16 @@ class Collection:
             else:
                 raise CX("Internal error, unknown child type for child \"%s\"!" % k)
 
-    def add(self, ref, save: bool = False, with_copy: bool = False, with_triggers: bool = True, with_sync: bool = True,
-            quick_pxe_update: bool = False, check_for_duplicate_names: bool = False):
+    def add(
+        self,
+        ref: item_base.Item,
+        save: bool = False,
+        with_copy: bool = False,
+        with_triggers: bool = True,
+        with_sync: bool = True,
+        quick_pxe_update: bool = False,
+        check_for_duplicate_names: bool = False,
+    ):
         """
         Add an object to the collection
 
@@ -386,11 +419,8 @@ class Collection:
         if save and with_triggers and self.api.is_cobblerd:
             utils.run_triggers(self.api, ref, "/var/lib/cobbler/triggers/add/%s/pre/*" % self.collection_type())
 
-        self.lock.acquire()
-        try:
-            self.listing[ref.name.lower()] = ref
-        finally:
-            self.lock.release()
+        with self.lock:
+            self.listing[ref.name] = ref
 
         # update children cache in parent object in case it is not in there already
         if ref.parent and ref.name not in ref.parent.children:
