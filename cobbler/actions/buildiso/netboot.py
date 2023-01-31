@@ -211,7 +211,10 @@ class AppendLineBuilder:
                 self.data["proxy"],
                 self.data["proxy"],
             )
-        self.append_line += " inst.ks=%s" % self.data["autoinstall"]
+        if self.dist.os_version in ["rhel4", "rhel5", "rhel6", "fedora16"]:
+            self.append_line += " ks=%s" % self.data["autoinstall"]
+        else:
+            self.append_line += " inst.ks=%s" % self.data["autoinstall"]
 
     def _generate_append_debian(self, system):
         """
@@ -371,10 +374,11 @@ class AppendLineBuilder:
         self.append_line += buildiso.add_remaining_kopts(self.data["kernel_options"])
         return self.append_line
 
-    def generate_profile(self, distro_breed: str) -> str:
+    def generate_profile(self, distro_breed: str, os_version: str) -> str:
         """
         Generate the append line for the kernel for a network installation.
         :param distro_breed: The name of the distribution breed.
+        :param os_version: The OS version of the distribution.
         :return: The generated append line.
         """
         self.append_line = f"  APPEND initrd=/{self.distro_name}.img"
@@ -406,7 +410,10 @@ class AppendLineBuilder:
                     self.data["proxy"],
                     self.data["proxy"],
                 )
-            self.append_line += " inst.ks=%s" % self.data["autoinstall"]
+            if os_version in ["rhel4", "rhel5", "rhel6", "fedora16"]:
+                self.append_line += " ks=%s" % self.data["autoinstall"]
+            else:
+                self.append_line += " inst.ks=%s" % self.data["autoinstall"]
         elif distro_breed in ["ubuntu", "debian"]:
             self.append_line += (
                 " auto-install/enable=true url=%s" % self.data["autoinstall"]
@@ -516,7 +523,7 @@ class NetbootBuildiso(buildiso.BuildIso):
 
         append_line = AppendLineBuilder(
             distro_name=distroname, data=data
-        ).generate_profile(distro.breed)
+        ).generate_profile(distro.breed, distro.os_version)
         kernel_path = f"/{distroname}.krn"
         initrd_path = f"/{distroname}.img"
 
