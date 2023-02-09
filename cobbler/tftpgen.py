@@ -178,7 +178,7 @@ class TFTPGen:
             s390_name = 'linux' + short_name[7:10]
             self.logger.info("Writing s390x pxe config for %s", short_name)
             # Always write a system specific _conf and _parm file
-            pxe_f = os.path.join(self.bootloc, enums.Archs.S390X, "s_%s" % s390_name)
+            pxe_f = os.path.join(self.bootloc, enums.Archs.S390X.value, "s_%s" % s390_name)
             conf_f = "%s_conf" % pxe_f
             parm_f = "%s_parm" % pxe_f
 
@@ -187,7 +187,7 @@ class TFTPGen:
             # FIXME: profiles also need this data!
             # gather default kernel_options and default kernel_options_s390x
             kernel_options = self.build_kernel_options(system, profile, distro,
-                                                       image, "s390x", blended.get("autoinstall", ""))
+                                                       image, enums.Archs.S390X.value, blended.get("autoinstall", ""))
             kopts_aligned = ""
             column = 0
             for option in kernel_options.split():
