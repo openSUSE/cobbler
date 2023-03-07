@@ -22,6 +22,7 @@
 # - Ubuntu: 18.04
 #
 # If it doesn't build on the Open Build Service (OBS) it's a bug.
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
 # Force bash instead of Debian dash
