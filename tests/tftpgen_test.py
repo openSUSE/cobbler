@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, List, Tuple
 
 import pytest
 
+from cobbler import enums
 from cobbler import tftpgen
 from cobbler.api import CobblerAPI
 from cobbler.items.distro import Distro
@@ -162,18 +163,14 @@ def test_write_all_system_files(
         test_system, "get_config_filename", side_effect=mock_get_config_filename
     )
     mock_write_pxe_file = mocker.patch.object(test_gen, "write_pxe_file")
-    mock_write_pxe_file_s390 = mocker.patch.object(
-        test_gen, "_write_all_system_files_s390"
-    )
-    mock_fs_helpers_rmfile = mocker.patch("cobbler.utils.filesystem_helpers.rmfile")
-    mock_fs_helpers_mkdir = mocker.patch("cobbler.utils.filesystem_helpers.mkdir")
+    mock_fs_helpers_rmfile = mocker.patch("cobbler.utils.rmfile")
+    mock_fs_helpers_mkdir = mocker.patch("cobbler.utils.mkdir")
     mock_os_symlink = mocker.patch("os.symlink")
 
     # Act
     test_gen.write_all_system_files(test_system, result)
 
     # Assert
-    assert mock_write_pxe_file_s390.call_count == 0
     assert mock_write_pxe_file.call_count == expected_pxe_file
     assert mock_fs_helpers_rmfile.call_count == expected_rmfile
     assert mock_fs_helpers_mkdir.call_count == expected_mkdir
@@ -192,7 +189,9 @@ def test_write_all_system_files_s390(
     Test that asserts if the generated kernel options are longer then 79 character we insert a newline for S390X.
     """
     # Arrange
+    result = {}
     test_distro = create_distro()
+    test_distro.arch = enums.Archs.S390X
     test_distro.kernel_options = {
         "foobar1": "whatever",
         "autoyast": "http://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/this-is-a-long-string-that-need-to-be-splitted/zzzzzzzzzzzzzzzzz",
@@ -210,9 +209,7 @@ def test_write_all_system_files_s390(
     mocker.patch("builtins.open", open_mock)
 
     # Act
-    test_gen._write_all_system_files_s390(
-        test_distro, test_profile, test_image, test_system
-    )
+    test_gen.write_all_system_files(test_system, result)
 
     # Assert - ensure generated parm file has fixed 80 characters format
     open_mock().write.assert_called()
