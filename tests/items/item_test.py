@@ -486,4 +486,4 @@ def test_grab_tree(cobbler_api):
 
     # Assert
     assert isinstance(result, list)
-    assert result[-1].server == "127.0.0.1"
+    assert result[-1].server == "192.168.1.1"
