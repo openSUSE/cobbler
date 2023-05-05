@@ -1177,3 +1177,10 @@ Choices:
 - managers.in_tftpd -- default, uses the system's TFTP server
 
 default: ``managers.in_tftpd``
+
+cache_enabled
+#############
+
+If set to ``True``, allows the results of some internal operations to be cached, but may slow down editing of objects.
+
+default: ``True``

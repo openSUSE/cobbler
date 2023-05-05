@@ -513,8 +513,15 @@ if __name__ == "__main__":
             "schema"
         ],
         extras_require={
-            "lint": ["pyflakes", "pycodestyle"],
-            "test": ["pytest", "pytest-cov", "codecov", "pytest-mock"]
+            "lint": ["pyflakes", "pycodestyle", "pylint", "black", "mypy"],
+            "test": [
+                "pytest>6",
+                "pytest-cov",
+                "codecov",
+                "pytest-mock",
+                "pytest-benchmark",
+            ],
+            "docs": ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-apidoc"],
         },
         packages=find_packages(exclude=["*tests*"]),
         scripts=[
@@ -741,6 +748,7 @@ if __name__ == "__main__":
             ("%s/tests/test_data/V3_3_3" % datadir, glob("tests/test_data/V3_3_3/*")),
             ("%s/tests/test_data/V3_3_3/settings.d" % datadir, glob("tests/test_data/V3_3_3/settings.d/*")),
             ("%s/tests/xmlrpcapi" % datadir, glob("tests/xmlrpcapi/*.py")),
+            (f"{datadir}/tests/performance", glob("tests/performance/*.py")),
             # tests containers subpackage
             ("%s/docker" % datadir, glob("docker/*")),
             ("%s/docker/debs" % datadir, glob("docker/debs/*")),
