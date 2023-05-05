@@ -23,6 +23,6 @@ jobs:
         shell: 'script -q -e -c "bash {0}"'
         run: |
           # Excluding "tests/actions/mkloaders_test.py::test_grubimage_run" as it is only prepared for SUMA/Uyuni containers
-          docker exec -u 0 -it cobbler bash -c "pytest  -k 'not test_grubimage_run' --cov=./cobbler && codecov --token=1064928c-6477-41be-9ac2-7ce5e6d1fd8b --commit=${GITHUB_SHA}"
+          docker exec -u 0 -it cobbler bash -c "pytest  -k 'not test_grubimage_run' --benchmark-skip --cov=./cobbler && codecov --token=1064928c-6477-41be-9ac2-7ce5e6d1fd8b --commit=${GITHUB_SHA}"
       - name: Stop and remove the container
         run: docker stop cobbler && docker rm cobbler

@@ -1,0 +1,27 @@
+name: Performance testing
+
+on:
+  push:
+    branches: [ suma/4.3, suma/head, uyuni/master ]
+  pull_request:
+    branches: [ suma/4.3, suma/head, uyuni/master ]
+
+jobs:
+  run_performance_tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Pull Docker Test Container
+        run: docker pull registry.opensuse.org/home/schoolguy/branches/opensuse/templates/images/tumbleweed/containers/opensuse/cobbler-github-ci:latest
+      - name: Run previously built Docker Container
+        run: docker run --cap-add=NET_ADMIN -t -d -v $PWD:/code --name cobbler registry.opensuse.org/home/schoolguy/branches/opensuse/templates/images/tumbleweed/containers/opensuse/cobbler-github-ci:latest
+      - name: Setup Cobbler in the Container
+        shell: 'script -q -e -c "bash {0}"'
+        run: |
+          docker exec -u 0 -it cobbler bash -c "./docker/develop/scripts/setup-supervisor.sh"
+      - name: Run the Performance Tests inside the Docker Container
+        shell: 'script -q -e -c "bash {0}"'
+        run: |
+          docker exec -u 0 -it cobbler bash -c "pytest --cov=./cobbler --benchmark-only --benchmark-autosave tests/performance"
+      - name: Stop and remove the container
+        run: docker stop cobbler && docker rm cobbler
