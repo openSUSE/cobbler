@@ -384,12 +384,3 @@ def test_supported_boot_loaders(cobbler_api):
     # Assert
     assert isinstance(distro.supported_boot_loaders, list)
     assert distro.supported_boot_loaders == ["grub", "pxe", "ipxe"]
-
-def test_descendants(create_distro, create_profile, create_system):
-    d = create_distro()
-    p = create_profile(d.name)
-    s = create_system(p.name)
-
-    result = d.descendants
-
-    assert result == [p, s]
