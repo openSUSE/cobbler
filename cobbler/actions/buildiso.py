@@ -216,7 +216,7 @@ class BuildIso(object):
                     v = data["kernel_options"]["install"]
                     if isinstance(v, list):
                         v = v[0]
-                        append_line += " install=%s" % v
+                    append_line += " install=%s" % v
                     del data["kernel_options"]["install"]
                 else:
                     append_line += " install=http://%s:%s/cblr/links/%s" % (
