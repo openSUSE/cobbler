@@ -140,6 +140,24 @@ class Profile(item.Item):
         self._remove_depreacted_dict_keys(dictionary)
         super().from_dict(dictionary)
 
+    def find_match_single_key(self, data, key, value, no_errors = False):
+        """
+        Look if the data matches or not. This is an alternative for ``find_match()``.
+
+        :param data: The data to search through.
+        :param key: The key to look for int the item.
+        :param value: The value for the key.
+        :param no_errors: How strict this matching is.
+        :return: Whether the data matches or not.
+        """
+        # special case for profile, since arch is a derived property from the parent distro
+        if key == "arch":
+            if self.arch:
+                return self.arch.value == value
+            return value is None
+
+        return super().find_match_single_key(data, key, value, no_errors)
+
     #
     # specific methods for item.Profile
     #
