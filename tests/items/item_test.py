@@ -413,28 +413,51 @@ def test_sort_key(request, cobbler_api):
     assert result == [request.node.originalname if request.node.originalname else request.node.name]
 
 
-@pytest.mark.skip("Test not yet implemented")
-def test_find_match(cobbler_api):
+@pytest.mark.parametrize(
+    "in_keys, check_keys, expect_match",
+    [
+        ({"uid": "test-uid"}, {"uid": "test-uid"}, True),
+        ({"name": "test-object"}, {"name": "test-object"}, True),
+        ({"comment": "test-comment"}, {"comment": "test-comment"}, True),
+        ({"uid": "test-uid"}, {"uid": ""}, False),
+    ],
+)
+def test_find_match(cobbler_api, in_keys, check_keys, expect_match):
+    """
+    Assert that given a desired amount of key-value pairs is matching the item or not.
+    """
+    # Arrange
+    titem = Item(cobbler_api, **in_keys)
+
+    # Act
+    result = titem.find_match(check_keys)
+
+    # Assert
+    assert expect_match == result
+
+
+@pytest.mark.parametrize(
+    "data_keys, check_key, check_value, expect_match",
+    [
+        ({"uid": "test-uid"}, "uid", "test-uid", True),
+        ({"menu": "testmenu0"}, "menu", "testmenu0", True),
+        ({"uid": "test", "name": "test-name"}, "uid", "test", True),
+        ({"depth": "1"}, "name", "test", False),
+        ({"uid": "test", "name": "test-name"}, "menu", "testmenu0", False),
+    ],
+)
+def test_find_match_single_key(cobbler_api, data_keys, check_key, check_value, expect_match):
+    """
+    Assert that a single given key and value match the object or not.
+    """
     # Arrange
     titem = Item(cobbler_api)
 
     # Act
-    titem.find_match()
+    result = titem.find_match_single_key(data_keys, check_key, check_value)
 
     # Assert
-    assert False
-
-
-@pytest.mark.skip("Test not yet implemented")
-def test_find_match_single_key(cobbler_api):
-    # Arrange
-    titem = Item(cobbler_api)
-
-    # Act
-    titem.find_match_single_key()
-
-    # Assert
-    assert False
+    assert expect_match == result
 
 
 def test_dump_vars(cobbler_api):
