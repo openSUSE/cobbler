@@ -638,7 +638,7 @@ class NetbootBuildiso(buildiso.BuildIso):
         system_names = utils.input_string_or_list_no_inherit(systems)
         profile_names = utils.input_string_or_list_no_inherit(profiles)
         loader_config_parts = self._generate_boot_loader_configs(
-            system_names, profile_names, exclude_dns
+            profile_names, system_names, exclude_dns
         )
 
         buildisodir = self._prepare_buildisodir(buildisodir)
