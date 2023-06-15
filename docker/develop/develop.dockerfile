@@ -49,6 +49,7 @@ RUN zypper install --no-recommends -y \
     python3-requests           \
     python3-PyYAML             \
     python3-pykickstart        \
+    python3-pytest-benchmark   \
     python3-netaddr            \
     python3-pymongo            \
     rpm-build                  \
