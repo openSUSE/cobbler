@@ -501,7 +501,7 @@ class NetbootBuildiso(buildiso.BuildIso):
         """
         distro = profile.get_conceptual_parent()
         distroname = self.make_shorter(distro.name)
-        data = utils.blender(self.api, False, distro)
+        data = utils.blender(self.api, False, profile)
         if distro is not None:  # SUSE uses 'textmode' instead of 'text'
             utils.kopts_overwrite(
                 data["kernel_options"], self.api.settings().server, distro.breed
