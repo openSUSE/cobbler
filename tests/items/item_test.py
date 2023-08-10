@@ -427,7 +427,8 @@ def test_find_match(cobbler_api, in_keys, check_keys, expect_match):
     Assert that given a desired amount of key-value pairs is matching the item or not.
     """
     # Arrange
-    titem = Item(cobbler_api, **in_keys)
+    titem = Item(cobbler_api)
+    titem.from_dict(in_keys)
 
     # Act
     result = titem.find_match(check_keys)
