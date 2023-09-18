@@ -5,13 +5,15 @@ This module contains the specific code to generate a network bootable ISO.
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import pathlib
+import shutil
 import re
+import textwrap
 from typing import List, Optional, Tuple
 
 from cobbler import utils
 from cobbler.actions import buildiso
 from cobbler.actions.buildiso import BootFilesCopyset, LoaderCfgsParts
-
+from cobbler.enums import Archs
 
 class AppendLineBuilder:
     """
@@ -640,37 +642,71 @@ class NetbootBuildiso(buildiso.BuildIso):
         loader_config_parts = self._generate_boot_loader_configs(
             profile_names, system_names, exclude_dns
         )
+        if distro_obj.arch == Archs.X86_64:
+            buildisodir = self._prepare_buildisodir(buildisodir)
+            buildiso_dirs = self.create_buildiso_dirs(buildisodir)
+            distro_mirrordir = pathlib.Path(self.api.settings().webdir) / "distro_mirror"
 
-        buildisodir = self._prepare_buildisodir(buildisodir)
-        buildiso_dirs = self.create_buildiso_dirs(buildisodir)
-        distro_mirrordir = pathlib.Path(self.api.settings().webdir) / "distro_mirror"
+            # fill temporary directory with binaries
+            self._copy_isolinux_files()
+            for copyset in loader_config_parts.bootfiles_copysets:
+                self._copy_boot_files(
+                    copyset.src_kernel,
+                    copyset.src_initrd,
+                    str(buildiso_dirs.root),
+                    copyset.new_filename,
+                )
 
-        # fill temporary directory with binaries
-        self._copy_isolinux_files()
-        for copyset in loader_config_parts.bootfiles_copysets:
-            self._copy_boot_files(
-                copyset.src_kernel,
-                copyset.src_initrd,
-                str(buildiso_dirs.root),
-                copyset.new_filename,
-            )
+            try:
+                filesource = self._find_distro_source(
+                    distro_obj.kernel, str(distro_mirrordir)
+                )
+                self.logger.info("filesource=%s", filesource)
+                distro_esp = self._find_esp(pathlib.Path(filesource))
+                self.logger.info("esp=%s", distro_esp)
+            except ValueError:
+                distro_esp = None
 
-        try:
-            filesource = self._find_distro_source(
-                distro_obj.kernel, str(distro_mirrordir)
-            )
-            self.logger.info("filesource=%s", filesource)
-            distro_esp = self._find_esp(pathlib.Path(filesource))
-            self.logger.info("esp=%s", distro_esp)
-        except ValueError:
-            distro_esp = None
+            if distro_esp is not None:
+                self._copy_esp(distro_esp, buildisodir)
+            else:
+                esp_location = self._create_esp_image_file(buildisodir)
+                self._copy_grub_into_esp(esp_location, distro_obj.arch)
 
-        if distro_esp is not None:
-            self._copy_esp(distro_esp, buildisodir)
-        else:
-            esp_location = self._create_esp_image_file(buildisodir)
-            self._copy_grub_into_esp(esp_location, distro_obj.arch)
+            self._write_isolinux_cfg(loader_config_parts.isolinux, buildiso_dirs.isolinux)
+            self._write_grub_cfg(loader_config_parts.grub, buildiso_dirs.grub)
+            self._xorriso_x86_64(xorrisofs_opts, iso, buildisodir, buildisodir + "/efi")
 
-        self._write_isolinux_cfg(loader_config_parts.isolinux, buildiso_dirs.isolinux)
-        self._write_grub_cfg(loader_config_parts.grub, buildiso_dirs.grub)
-        self._generate_iso(xorrisofs_opts, iso, buildisodir, buildisodir + "/efi")
+        elif distro_obj.arch in (Archs.PPC, Archs.PPC64, Archs.PPC64LE, Archs.PPC64EL):
+
+            # create buildiso dir without ISOLINUX/EFI
+            buildisodir = pathlib.Path(self._prepare_buildisodir(buildisodir))
+            boot = buildisodir / "boot"
+            boot.mkdir()
+            grub_bin = pathlib.Path(self.api.settings().bootloaders_dir) / "grub"/ "grub.ppc64le"
+            utils.copyfile(str(grub_bin), str(boot / "grub.elf"))
+            # fill temporary directory with binaries
+            for copyset in loader_config_parts.bootfiles_copysets:
+                self._copy_boot_files(
+                    copyset.src_kernel,
+                    copyset.src_initrd,
+                    str(buildisodir),
+                    copyset.new_filename,
+                )
+            self._write_grub_cfg(loader_config_parts.grub, buildisodir / "boot")
+
+            ppcdir = buildisodir / "ppc"
+            ppcdir.mkdir()
+            with open(ppcdir / "bootinfo.txt", "w") as bootinfo:
+                bootinfo.write(
+                    textwrap.dedent(
+                        f"""
+                        <chrp-boot>
+                        <description>COBBLER INSTALL</description>
+                        <os-name>{distro_name}</os-name>
+                        <boot-script>boot &device;:1,\\boot\\grub.elf</boot-script>
+                        </chrp-boot>
+                        """
+                     )
+                )
+            self._xorriso_ppc64le(xorrisofs_opts, iso, buildisodir)

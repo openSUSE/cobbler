@@ -468,7 +468,16 @@ class BuildIso:
         return buildisodir
 
     def create_buildiso_dirs(self, buildiso_root: str) -> BuildisoDirs:
-        """Create directories in the buildiso root."""
+        """Create directories in the buildiso root.
+
+        Layout:
+        .
+        ├── autoinstall
+        ├── EFI
+        │   └── BOOT
+        ├── isolinux
+        └── repo_mirror
+        """
         root = pathlib.Path(buildiso_root)
         isolinuxdir = root / "isolinux"
         grubdir = root / "EFI" / "BOOT"
@@ -485,7 +494,50 @@ class BuildIso:
             repo=repodir,
         )
 
-    def _generate_iso(self, xorrisofs_opts: str, iso: str, buildisodir: str, esp_path: str):
+    def _xorriso_ppc64le(
+        self,
+        xorrisofs_opts: str,
+        iso: str,
+        buildisodir: str,
+    ):
+        """
+        Build the final xorrisofs command which is then executed on the disk.
+        :param xorrisofs_opts: The additional options for xorrisofs.
+        :param iso: The name of the output iso.
+        :param buildisodir: The directory in which we build the ISO.
+        """
+        # find grub / pass path to it in? Is that even needed?
+        cmd = [
+            "xorriso",
+            "-as",
+            "mkisofs",
+        ]
+        if xorrisofs_opts != "":
+            cmd.append(xorrisofs_opts)
+        # add xorriso options as required for ppcle64
+        cmd += [
+            "-chrp-boot",
+            "-hfs-bless-by",
+            "p",
+            "boot",
+            "-V",
+            "COBBLER_INSTALL",
+            "-o",
+            iso,
+            buildisodir,
+        ]
+        xorrisofs_return_code = utils.subprocess_call(cmd, shell=False)
+        if xorrisofs_return_code != 0:
+            self.logger.error("xorrisofs failed with non zero exit code!")
+            return
+
+        self.logger.info("ISO build complete")
+        self.logger.info("You may wish to delete: %s", buildisodir)
+        self.logger.info("The output file is: %s", iso)
+
+    def _xorriso_x86_64(
+        self, xorrisofs_opts: str, iso: str, buildisodir: str, esp_path: str
+    ):
         """
         Build the final xorrisofs command which is then executed on the disk.
         :param xorrisofs_opts: The additional options for xorrisofs.
@@ -493,6 +545,7 @@ class BuildIso:
         :param buildisodir: The directory in which we build the ISO.
         :param esp_path: The absolute path to the EFI system partition.
         """
+
         running_on, _ = utils.os_release()
         if running_on in ("suse", "centos", "virtuozzo", "redhat"):
             isohdpfx_location = pathlib.Path(self.api.settings().syslinux_dir).joinpath(
