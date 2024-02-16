@@ -152,6 +152,6 @@ def test_normalize_v3_3_3():
     new_settings = V3_3_3.normalize(old_settings_dict)
 
     # Assert
-    assert len(new_settings) == 131
+    assert len(new_settings) == 133
     # Migration of default_virt_file_size to float is working
     assert isinstance(new_settings.get("default_virt_file_size", None), float)
