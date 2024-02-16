@@ -110,6 +110,8 @@ schema = Schema(
         ): list,
         Optional("bootloaders_shim_folder", default="/usr/share/efi/*/"): str,
         Optional("bootloaders_shim_file", default=r"shim\.efi"): str,
+        Optional("secure_boot_grub_folder"): str,
+        Optional("secure_boot_grub_file"): str,
         Optional("bootloaders_ipxe_folder", default="/usr/share/ipxe/"): str,
         Optional("syslinux_dir", default="/usr/share/syslinux"): str,
         Optional("syslinux_memdisk_folder", default="/usr/share/syslinux"): str,
