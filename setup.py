@@ -19,7 +19,6 @@ except ImportError:
 from distutils.command.build import build as _build
 from configparser import ConfigParser
 from setuptools import find_packages
-from sphinx.setup_command import BuildDoc
 
 import codecs
 from coverage import Coverage
@@ -156,15 +155,6 @@ class build(_build):
     def run(self):
         _build.run(self)
 
-#####################################################################
-# # Build man pages using Sphinx  ###################################
-#####################################################################
-
-
-class build_man(BuildDoc):
-    def initialize_options(self):
-        BuildDoc.initialize_options(self)
-        self.builder = 'man'
 
 #####################################################################
 # # Configure files ##################################################
@@ -298,8 +288,7 @@ def has_man_pages(build):
 
 
 build.sub_commands.extend((
-    ('build_man', has_man_pages),
-    ('build_cfg', has_configure_files)
+    ('build_cfg', has_configure_files),
 ))
 
 
@@ -483,7 +472,6 @@ if __name__ == "__main__":
             'savestate': savestate,
             'restorestate': restorestate,
             'build_cfg': build_cfg,
-            'build_man': build_man
         },
         name="cobbler",
         version=VERSION,
