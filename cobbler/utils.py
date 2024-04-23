@@ -2153,3 +2153,27 @@ def filelock(lock_file: str):
             with contextlib.suppress(OSError):
                 fcntl.flock(fd, fcntl.LOCK_UN)
             os.close(fd)
+
+
+def merge_dicts_recursive(base_dict, updating_dict, str_append=False) -> Dict:
+    """Merge updating_dict into base_config recursively.
+    :param base_dict: Base dictionary.
+    :param updating_dict: Updating dict, overrides base_dict.
+    :returns dict: Merged dict"""
+    ret = base_dict.copy()
+    for k, v in updating_dict.items():
+        if (
+            k in base_dict
+            and isinstance(v, dict)
+            and isinstance(base_dict.get(k), dict)
+        ):
+            ret[k] = merge_dicts_recursive(base_dict[k], v)
+        elif (
+            str_append
+            and k in ret
+            and isinstance(v, str)
+        ):
+            ret[k] += v
+        else:
+            ret[k] = v
+    return ret
