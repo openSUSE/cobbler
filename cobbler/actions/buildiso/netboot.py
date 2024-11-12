@@ -621,6 +621,7 @@ class NetbootBuildiso(buildiso.BuildIso):
         distro_name: str = "",
         systems: List[str] = None,
         exclude_dns: bool = False,
+        esp: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -669,15 +670,19 @@ class NetbootBuildiso(buildiso.BuildIso):
 
             # fill temporary directory with arch-specific binaries
             self._copy_isolinux_files()
-            try:
-                filesource = self._find_distro_source(
-                    distro_obj.kernel, str(distro_mirrordir)
-                )
-                self.logger.info("filesource=%s", filesource)
-                distro_esp = self._find_esp(pathlib.Path(filesource))
-                self.logger.info("esp=%s", distro_esp)
-            except ValueError:
-                distro_esp = None
+            if esp:
+                self.logger.info("esp=%s", esp)
+                distro_esp = esp
+            else:
+                try:
+                    filesource = self._find_distro_source(
+                        distro_obj.kernel, str(distro_mirrordir)
+                    )
+                    self.logger.info("filesource=%s", filesource)
+                    distro_esp = self._find_esp(pathlib.Path(filesource))
+                    self.logger.info("esp=%s", distro_esp)
+                except ValueError:
+                    distro_esp = None
 
             if distro_esp is not None:
                 self._copy_esp(distro_esp, buildisodir)
@@ -717,4 +722,4 @@ class NetbootBuildiso(buildiso.BuildIso):
                 copyset.new_filename,
             )
 
-        xorriso_func(xorrisofs_opts, iso, buildisodir, esp_location)
+        xorriso_func(xorrisofs_opts, iso, buildisodir, buildisodir + "/efi")
