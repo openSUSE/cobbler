@@ -170,6 +170,7 @@ Group:          Development/System
 
 License:        GPL-2.0-or-later
 Source:         %{name}-%{version}.tar.gz
+Source1:        cobbler.rpmlintrc
 BuildArch:      noarch
 
 BuildRequires:  git-core
