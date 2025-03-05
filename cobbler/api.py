@@ -1566,9 +1566,9 @@ class CobblerAPI:
                 return
             raise TypeError('Systems must be a list of one or more strings.')
         self.logger.info(
-            "Waiting sync_lock to be available to perform the sync action (this might take some time)"
+            "Waiting lock to be available to perform the sync action (this might take some time)"
         )
-        with utils.filelock("/var/lib/cobbler/sync_lock"):
+        with utils.filelock("/var/lib/cobbler/lock"):
             sync_obj = self.get_sync(verbose=verbose)
             sync_obj.run_sync_systems(systems)
 
@@ -1587,9 +1587,9 @@ class CobblerAPI:
         if not what:
             self.logger.info("syncing all")
             self.logger.info(
-                "Waiting sync_lock to be available to perform the sync action (this might take some time)"
+                "Waiting lock to be available to perform the sync action (this might take some time)"
             )
-            with utils.filelock("/var/lib/cobbler/sync_lock"):
+            with utils.filelock("/var/lib/cobbler/lock"):
                 sync_obj = self.get_sync(verbose=verbose)
                 sync_obj.run()
             return
@@ -1618,9 +1618,9 @@ class CobblerAPI:
         )
         dns = dns_module.get_manager(self)
         self.logger.info(
-            "Waiting sync_lock to be available to perform the sync action (this might take some time)"
+            "Waiting lock to be available to perform the sync action (this might take some time)"
         )
-        with utils.filelock("/var/lib/cobbler/sync_lock"):
+        with utils.filelock("/var/lib/cobbler/lock"):
             dns.sync()
 
     # ==========================================================================
@@ -1640,9 +1640,9 @@ class CobblerAPI:
         )
         dhcp = dhcp_module.get_manager(self)
         self.logger.info(
-            "Waiting sync_lock to be available to perform the sync action (this might take some time)"
+            "Waiting lock to be available to perform the sync action (this might take some time)"
         )
-        with utils.filelock("/var/lib/cobbler/sync_lock"):
+        with utils.filelock("/var/lib/cobbler/lock"):
             dhcp.sync()
 
     # ==========================================================================
