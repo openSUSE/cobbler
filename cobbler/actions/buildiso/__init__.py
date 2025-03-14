@@ -180,7 +180,8 @@ class BuildIso:
         """
         if selected_items is None:
             selected_items = []
-        return self.filter_items(self.api.profiles(), selected_items)
+
+        return [profile for profile in self.filter_items(self.api.profiles(), selected_items) if profile.enable_menu]
 
     def filter_items(self, all_objs, selected_items: List[str]) -> list:
         """Return a list of valid profile or system objects selected from all profiles or systems by name, or everything
