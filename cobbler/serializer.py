@@ -49,7 +49,9 @@ def __grab_lock():
             if not os.path.exists("/var/lib/cobbler/lock"):
                 fd = open("/var/lib/cobbler/lock", "w+")
                 fd.close()
-            LOCK_HANDLE = open("/var/lib/cobbler/lock", "r")
+            # exclusive lock requires writtable mode (r+) on NFS
+            # https://man7.org/linux/man-pages/man2/flock.2.html
+            LOCK_HANDLE = open("/var/lib/cobbler/lock", "r+")
             fcntl.flock(LOCK_HANDLE.fileno(), fcntl.LOCK_EX)
     except:
         # this is pretty much FATAL, avoid corruption and quit now.
@@ -66,7 +68,9 @@ def __release_lock(with_changes=False):
         fd.write("%f" % time.time())
         fd.close()
     if LOCK_ENABLED:
-        LOCK_HANDLE = open("/var/lib/cobbler/lock", "r")
+        # exclusive lock requires writtable mode (r+) on NFS
+        # https://man7.org/linux/man-pages/man2/flock.2.html
+        LOCK_HANDLE = open("/var/lib/cobbler/lock", "r+")
         fcntl.flock(LOCK_HANDLE.fileno(), fcntl.LOCK_UN)
         LOCK_HANDLE.close()
 
