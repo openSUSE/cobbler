@@ -1,1 +1,1 @@
-Prevent crash during Cobbler startup on NFS environments
+Prevent crash during Cobbler startup on NFS environments (bsc#1240666)
