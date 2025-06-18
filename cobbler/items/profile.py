@@ -189,18 +189,23 @@ class Profile(item.Item):
         return self.api.distros().find(name=self._distro)
 
     @distro.setter
-    def distro(self, distro_name: str):
+    def distro(self, distro_name: Union["Distro", str]):
         """
         Sets the distro. This must be the name of an existing Distro object in the Distros collection.
 
         :param distro_name: The name of the distro.
         """
-        if not isinstance(distro_name, str):
-            raise TypeError("distro_name needs to be of type str")
+        distro = None
+        if isinstance(distro_name, Distro):
+            distro = distro_name
+            distro_name = distro.name
+        elif not isinstance(distro_name, str):
+            raise TypeError("distro_name needs to be of type Distro or str")
         if not distro_name:
             self._distro = ""
             return
-        distro = self.api.distros().find(name=distro_name)
+        if distro is None:
+            distro = self.api.distros().find(name=distro_name)
         if distro is None:
             raise ValueError('distribution "%s" not found' % distro_name)
         self._distro = distro_name

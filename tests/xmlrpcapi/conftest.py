@@ -27,6 +27,18 @@ def token(cobbler_xmlrpc_base) -> str:
     """
     return cobbler_xmlrpc_base[1]
 
+@pytest.fixture(scope="function")
+def token2(remote: CobblerXMLRPCInterface) -> str:
+    """
+
+    :param cobbler_xmlrpc_base:
+    :return:
+    """
+    shared_secret = get_shared_secret()
+    token = remote.login("", shared_secret)
+    if not token:
+        raise AssertionError(f"could not obtain a token when logging with {shared_secret}")
+    return token
 
 @pytest.fixture(scope="function")
 def cobbler_xmlrpc_base(cobbler_api):

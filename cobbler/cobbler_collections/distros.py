@@ -49,7 +49,7 @@ class Distros(collection.Collection):
         return new_distro
 
     def remove(self, name, with_delete: bool = True, with_sync: bool = True, with_triggers: bool = True,
-               recursive: bool = False):
+               recursive: bool = False, rebuild_menu: bool = True):
         """
         Remove element named 'name' from the collection
 

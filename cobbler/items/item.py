@@ -817,21 +817,27 @@ class Item:
         return self.api.get_items(self.COLLECTION_TYPE).get(self._parent)
 
     @parent.setter
-    def parent(self, parent: str):
+    def parent(self, parent: Union["Item", str]):
         """
         Set the parent object for this object.
 
         :param parent: The new parent object. This needs to be a descendant in the logical inheritance chain.
         """
-        if not isinstance(parent, str):
-            raise TypeError('Property "parent" must be of type str!')
+        found = None
+        if isinstance(parent, Item):
+            found = parent
+            parent = parent.name
+        elif not isinstance(parent, str):
+            raise TypeError('Property "parent" must be of type Item or str!')
+
         if not parent:
             self._parent = ""
             return
         if parent == self.name:
             # check must be done in two places as setting parent could be called before/after setting name...
             raise CX("self parentage is weird")
-        found = self.api.get_items(self.COLLECTION_TYPE).get(parent)
+        if found is None:
+            found = self.api.get_items(self.COLLECTION_TYPE).get(parent)
         if found is None:
             raise CX(f'profile "{parent}" not found, inheritance not possible')
         self._parent = parent

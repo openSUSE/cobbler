@@ -40,7 +40,7 @@ class Images(collection.Collection):
         return new_image
 
     def remove(self, name, with_delete: bool = True, with_sync: bool = True, with_triggers: bool = True,
-               recursive: bool = True):
+               recursive: bool = True, rebuild_menu: bool = True):
         """
         Remove element named 'name' from the collection
 
