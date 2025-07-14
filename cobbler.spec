@@ -384,6 +384,48 @@ chgrp %{apache_group} %{_sysconfdir}/cobbler/settings.yaml
 %else
 %post
 %systemd_post cobblerd.service
+
+if [ $1 -gt 1 ]; then
+    # In case of a package upgrade
+    if [ -f /etc/susemanager-release ] || [ -f /etc/uyuni-release ]; then
+        if [ -s /etc/cobbler/settings.yaml.rpmnew ] && [ ! -f /etc/cobbler/settings.d/zz-uyuni.settings ]; then
+            # The /etc/cobbler/settings.yaml.backup should exist unless explicitly removed.
+            if [ ! -s /etc/cobbler/settings.yaml.backup ]; then
+                echo "Not found (or empty): /etc/cobbler/settings.yaml.backup - Skipping settings migration"
+            else
+                echo "Migrating Cobbler settings for Uyuni to a dedicated file..."
+                python3 <<EOF
+# Check changes between old defaults (backup) and current settings
+# to detect local changes applied to settings. Local changes are then
+# moved to /etc/cobbler/settings.d/zz-uyuni.settings
+import yaml
+old_backup_settings = None
+current_settings = None
+new_uyuni_settings = {}
+new_uyuni_tftpsync_settings = {}
+with open("/etc/cobbler/settings.yaml.backup") as _input:
+    old_backup_settings = yaml.safe_load(_input)
+with open("/etc/cobbler/settings.yaml") as _input:
+    current_settings = yaml.safe_load(_input)
+for conf in current_settings:
+    if conf == "proxies":
+        new_uyuni_tftpsync_settings[conf] = current_settings[conf]
+    elif conf in old_backup_settings and current_settings[conf] != old_backup_settings[conf]:
+        new_uyuni_settings[conf] = current_settings[conf]
+with open("/etc/cobbler/settings.d/zz-uyuni.settings", "w") as _output:
+    yaml.safe_dump(new_uyuni_settings, _output)
+if new_uyuni_tftpsync_settings:
+    with open("/etc/cobbler/settings.d/zz-uyuni-tftpsync.settings", "w") as _output:
+        yaml.safe_dump(new_uyuni_tftpsync_settings, _output)
+EOF
+                # Restore the default Cobbler settings.yaml file
+                cp /etc/cobbler/settings.yaml /etc/cobbler/settings.yaml.migration.backup
+                mv /etc/cobbler/settings.yaml.rpmnew /etc/cobbler/settings.yaml
+            fi
+        fi
+    fi
+fi
+
 # Fixup permission for world readable settings files
 chmod 640 %{_sysconfdir}/cobbler/settings.yaml
 chmod 600 %{_sysconfdir}/cobbler/mongodb.conf
@@ -444,6 +486,8 @@ chgrp %{apache_group} %{_sysconfdir}/cobbler/settings.yaml
 # Work around broken attr support
 # Cf. https://github.com/debbuild/debbuild/issues/160
 %attr(640, root, root) %config(noreplace) %{_sysconfdir}/cobbler/settings.yaml
+%ghost %{_sysconfdir}/cobbler/settings.yaml.backup
+%ghost %{_sysconfdir}/cobbler/settings.yaml.migration.backup
 %dir %{_sysconfdir}/cobbler/settings.d
 %attr(750, root, root) %{_sysconfdir}/cobbler/settings.d
 %attr(640, root, root) %config(noreplace) %{_sysconfdir}/cobbler/settings.d/bind_manage_ipmi.settings
@@ -454,6 +498,8 @@ chgrp %{apache_group} %{_sysconfdir}/cobbler/settings.yaml
 %attr(640, root, root) %config(noreplace) %{_sysconfdir}/cobbler/users.digest
 %else
 %attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/settings.yaml
+%ghost %{_sysconfdir}/cobbler/settings.yaml.backup
+%ghost %{_sysconfdir}/cobbler/settings.yaml.migration.backup
 %attr(750, root, root) %dir %{_sysconfdir}/cobbler/settings.d
 %attr(640, root, root) %config(noreplace) %{_sysconfdir}/cobbler/settings.d/bind_manage_ipmi.settings
 %attr(640, root, root) %config(noreplace) %{_sysconfdir}/cobbler/settings.d/manage_genders.settings
