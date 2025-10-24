@@ -604,7 +604,6 @@ if __name__ == "__main__":
             # files
             ("%s/grub_config/grub" % libpath, glob("config/grub/grub/*")),
             # dirs
-            ("%s/boot" % tftproot, []),
             ("%s/etc" % tftproot, []),
             ("%s/grub" % tftproot, []),
             ("%s/images" % tftproot, []),

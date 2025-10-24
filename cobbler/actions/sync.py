@@ -200,6 +200,9 @@ class CobblerSync:
             utils.mkdir(self.links)
         if not os.path.exists(self.distromirror_config):
             utils.mkdir(self.distromirror_config)
+        boot_link = os.path.join(self.bootloc, "boot")
+        if not os.path.exists(boot_link):
+            os.symlink(".", boot_link, target_is_directory=True)
 
     def clean_trees(self):
         """
