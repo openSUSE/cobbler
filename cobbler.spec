@@ -169,6 +169,7 @@ Group:          Development/System
 %endif
 
 License:        GPL-2.0-or-later
+#!CreateArchive: %{name}
 Source:         %{name}-%{version}.tar.gz
 Source1:        cobbler.rpmlintrc
 BuildArch:      noarch
