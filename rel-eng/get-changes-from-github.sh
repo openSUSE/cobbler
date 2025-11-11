@@ -23,7 +23,8 @@ TARGET_BRANCH="mlm-5.2"
 COMMIT_AUTHOR="Jenkins: Cobbler to Gitea Automation <salt-ci@suse.de>"
 ##########
 
-set -x
+set +x
+set -e
 
 TEMP_REPO_NAME="cobbler_gitea"
 ARCHIVE_URL="$SOURCE_GIT_REPO/archive/refs/heads/$SOURCE_BRANCH.tar.gz"
