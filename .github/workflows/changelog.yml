@@ -1,0 +1,23 @@
+name: changelog checker
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check_file_presence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@1e31de5234b9f8995739874a8ce0492dc87873e2 # v4
+      - id: changes
+        uses: dorny/paths-filter@0bc4621a3135347011ad047f9ecf449bf72ce2bd # v3
+        with:
+          filters: |
+            required_file:
+              - 'cobbler.changes'
+              
+      - name: changes are present in cobbler.changes file 
+        if: steps.changes.outputs.required_file == 'false'
+        run: |
+          echo "Error: Every PR must include changes on the 'cobbler.changes' file."
+          exit 1
