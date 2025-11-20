@@ -19,7 +19,7 @@
 SOURCE_GIT_REPO="https://github.com/openSUSE/cobbler"
 SOURCE_BRANCH="mlm/head"
 TARGET_REPO="https://src.suse.de/Galaxy/cobbler"
-TARGET_BRANCH="mlm-5.2"
+TARGET_BRANCH="mlm-main"
 COMMIT_AUTHOR="Jenkins: Cobbler to Gitea Automation <salt-ci@suse.de>"
 ##########
 
@@ -37,7 +37,7 @@ rm $TEMP_REPO_NAME -rf || true
 git clone -q $TARGET_REPO $TEMP_REPO_NAME
 cd $TEMP_REPO_NAME
 
-# Select target branch (mlm-5.2)
+# Select target branch
 git checkout -q $TARGET_BRANCH
 
 # Get source changes and prepare package
