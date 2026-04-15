@@ -19,7 +19,7 @@
 SOURCE_GIT_REPO="https://github.com/openSUSE/cobbler"
 SOURCE_BRANCH="mlm/head"
 TARGET_REPO="https://src.suse.de/Galaxy/cobbler"
-TARGET_BRANCH="mlm-main"
+TARGET_BRANCH="devel_mlm-main"
 COMMIT_AUTHOR="Jenkins: Cobbler to Gitea Automation <salt-ci@suse.de>"
 ##########
 
@@ -62,7 +62,7 @@ if git diff --quiet; then
     echo "--> No new changes to sync"
 else
     echo "--> New changes are detected. Syncing ..."
-    git commit -a -m "Sync changes from https://github.com/openSUSE/cobbler (branch mlm/head)" --author "$COMMIT_AUTHOR" --no-gpg-sign
+    git commit -a -m "Sync changes from https://github.com/openSUSE/cobbler (branch ${SOURCE_BRANCH})" --author "$COMMIT_AUTHOR" --no-gpg-sign
     git push -q origin $TARGET_BRANCH
 fi
 
