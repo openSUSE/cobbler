@@ -10,7 +10,12 @@ from setuptools import Command
 from setuptools.command.install import install as _install
 from setuptools import Distribution as _Distribution
 from setuptools.command.build_py import build_py as _build_py
-from setuptools import dep_util
+
+try:
+    from setuptools import modified as dep_util
+except ImportError:
+    from setuptools import dep_util
+
 from distutils.command.build import build as _build
 from configparser import ConfigParser
 from setuptools import find_packages
