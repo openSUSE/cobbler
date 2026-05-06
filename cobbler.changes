@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed May  6 10:05:29 UTC 2026 - Pablo Suárez Hernández <pablo.suarezhernandez@suse.com>
+
+- Fix package building with Sphinx >= 7.0.0
+
+-------------------------------------------------------------------
 Tue May  5 14:20:39 UTC 2026 - Pablo Suárez Hernández <pablo.suarezhernandez@suse.com>
 
 - Add support for building with Python 3.13
