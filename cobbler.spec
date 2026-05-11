@@ -188,7 +188,13 @@ BuildRequires:  apache2-deb-macros
 BuildRequires:  %{py3_module_coverage}
 BuildRequires:  python%{python3_pkgversion}-distro
 BuildRequires:  python%{python3_pkgversion}-setuptools
+BuildRequires:  %{py3_module_pyyaml}
+BuildRequires:  %{py3_module_dns}
+BuildRequires:  %{py3_module_file}
+%if 0%{?suse_version} >= 1600
 BuildRequires:  python%{python3_pkgversion}-pip
+BuildRequires:  python%{python3_pkgversion}-roman-numerals
+%endif
 BuildRequires:  python%{python3_pkgversion}-netaddr
 BuildRequires:  python%{python3_pkgversion}-schema
 BuildRequires:  python%{python3_pkgversion}-systemd
