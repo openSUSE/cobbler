@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue May  5 14:20:39 UTC 2026 - Pablo Suárez Hernández <pablo.suarezhernandez@suse.com>
+
+- Add support for building with Python 3.13
+
+-------------------------------------------------------------------
 Wed Apr 15 07:10:27 UTC 2026 - Marek Czernek <marek.czernek@suse.com>
 
 - Fix failing mkloaders test 
