@@ -124,7 +124,7 @@ if [[ "$NEEDS_PUSH" == true ]]; then
     mkdir -p "$PACKAGE_NAME"
 
     # Sync sources (excluding git metadata)
-    rsync -a --delete --exclude='.git' ../source_repo/ "$PACKAGE_NAME/"
+    rsync -a --checksum --delete --exclude='.git' ../source_repo/ "$PACKAGE_NAME/"
 
     # Extract the .spec and .changes files
     for ext in spec changes; do
