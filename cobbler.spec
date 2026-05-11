@@ -304,6 +304,19 @@ Dockerfiles and scripts to setup testing containers
 %prep
 %setup
 
+%if 0%{?suse_version} >= 1600
+# The current version of pip in Leap 16.0 tries to pull roman-numerals-py
+# from PyPI even if the package is provided via RPM as BuildRequires.
+# Workaround: Spoof the metadata for roman-numerals-py so
+# setuptools transitive dependency checks don't hit the internet.
+mkdir -p roman_numerals_py-99.9.9.egg-info
+cat <<EOF > roman_numerals_py-99.9.9.egg-info/PKG-INFO
+Metadata-Version: 2.1
+Name: roman-numerals-py
+Version: 99.9.9
+EOF
+%endif
+
 %if 0%{?suse_version}
 # Set tftpboot location correctly for SUSE distributions
 sed -e "s|/var/lib/tftpboot|%{tftpboot_dir}|g" -i config/cobbler/settings.yaml
