@@ -65,6 +65,12 @@ subjectAltName = DNS:${FQDN}
 authorityKeyIdentifier = keyid
 EOF
 
+if [ ! -f /etc/rc.status ]; then
+    cp /code/docker/develop/openldap/rc.status /etc/rc.status
+    mkdir -p /run/slapd
+    chown ldap:ldap /run/slapd /etc/openldap/slapd.conf /var/lib/ldap/
+fi
+
 openssl req -utf8 -new -newkey rsa:4096 -nodes -config ca.conf -out ca-slapd.csr -keyout private/ca-slapd.key
 openssl x509 -req -signkey private/ca-slapd.key -passin pass:cobbler -in ca-slapd.csr -extfile ca.conf -extensions v3_ca -out ca-slapd.crt -days 365
 openssl req -utf8 -new -newkey rsa:2048 -nodes -config slapd.conf -out slapd.csr -keyout slapd.key
@@ -73,4 +79,7 @@ openssl req -utf8 -new -newkey rsa:2048 -nodes -config ldap.conf -out ldap.csr -
 openssl x509 -req -CAkey private/ca-slapd.key -passin pass:cobbler -CA ca-slapd.crt -in ldap.csr -extfile ldap.conf -extensions req_ext -out ldap.crt -CAcreateserial -days 365
 cp /etc/ssl/ca-slapd.crt /etc/pki/trust/anchors
 update-ca-certificates
+cp /etc/ssl/ca-slapd.crt /etc/ssl/certs/
+openssl rehash /etc/ssl/certs
 chown  ldap:ldap /etc/ssl/{slapd.*,ldap.*}
+chmod 644 /etc/ssl/{ca-slapd.*,ldap.*}

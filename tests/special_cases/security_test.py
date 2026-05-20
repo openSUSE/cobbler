@@ -3,7 +3,7 @@ This test module tries to automatically replicate all security incidents we had 
 """
 # SPDX-License-Identifier: GPL-2.0-or-later
 import base64
-import crypt
+import bcrypt
 import logging
 import os
 import subprocess
@@ -127,7 +127,10 @@ def test_pam_login_with_expired_user():
     test_username = "expired_user"
     test_password = "password"
     # create pam testuser
-    subprocess.run(["useradd", "-p", crypt.crypt(test_password), test_username])
+    subprocess.run(
+        ["useradd", "-p", bcrypt.hashpw(test_password.encode(), bcrypt.gensalt()).decode(), test_username],
+        check=False  # type: ignore
+    )
     # change user to be expired
     subprocess.run(["chage", "-E0", test_username])
 

@@ -1,5 +1,6 @@
 import binascii
 import datetime
+import importlib
 import os
 import re
 import shutil
@@ -1183,6 +1184,7 @@ line4
 line6
 '''
 
+    importlib.reload(utils)
     mock_open = mocker.patch("builtins.open", mocker.mock_open(read_data=file_content))
     mock_os_replace = mocker.patch("os.replace", MagicMock())
 
