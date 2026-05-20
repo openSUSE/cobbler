@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed May 20 12:23:24 UTC 2026 - Pablo Suárez Hernández <pablo.suarezhernandez@suse.com>
+
+- Fix tests to run on openSUSE Leap 16.0
+
+-------------------------------------------------------------------
 Fri May  8 15:40:01 UTC 2026 - Pablo Suárez Hernández <pablo.suarezhernandez@suse.com>
 
 - Fix compatibility with Python 3.13

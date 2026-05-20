@@ -6,6 +6,10 @@ cp /code/docker/develop/supervisord/supervisord.conf /etc/
 
 echo "Setup openLDAP"
 /code/docker/develop/scripts/setup-openldap.sh
+if [ ! -f /usr/libexec/openldap/start ]; then
+    # Make launcher compatible with Leap 15.6
+    sed -i "s/libexec/lib/g" /etc/supervisord.d/slapd.conf
+fi
 
 echo "Setup reposync"
 /code/docker/develop/scripts/setup-reposync.sh

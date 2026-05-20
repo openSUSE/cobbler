@@ -309,10 +309,10 @@ def test_power_type(cobbler_api):
     system = System(cobbler_api)
 
     # Act
-    system.power_type = "docker"
+    system.power_type = "redfish"
 
     # Assert
-    assert system.power_type == "docker"
+    assert system.power_type == "redfish"
 
 
 def test_power_user(cobbler_api):
