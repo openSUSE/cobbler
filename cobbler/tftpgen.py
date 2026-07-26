@@ -938,11 +938,12 @@ class TFTPGen:
             URL_REGEX = "[a-zA-Z]*://.*"
             local_autoinstall_file = not re.match(URL_REGEX, autoinstall_path)
             if local_autoinstall_file:
+                protocol = self.settings.autoinstall_scheme
                 if system is not None:
-                    autoinstall_path = "http://%s/cblr/svc/op/autoinstall/system/%s" % (httpserveraddress, system.name)
+                    autoinstall_path = "%s://%s/cblr/svc/op/autoinstall/system/%s" % (protocol, httpserveraddress, system.name)
                 else:
-                    autoinstall_path = "http://%s/cblr/svc/op/autoinstall/profile/%s" \
-                                       % (httpserveraddress, profile.name)
+                    autoinstall_path = "%s://%s/cblr/svc/op/autoinstall/profile/%s" \
+                                       % (protocol, httpserveraddress, profile.name)
 
             if distro.breed is None or distro.breed == "redhat":
                 if distro.os_version in ["rhel4", "rhel5", "rhel6", "fedora16"]:
@@ -1250,7 +1251,8 @@ class TFTPGen:
         # FIXME: img_path should probably be moved up into the blender function to ensure they're consistently
         #        available to templates across the board
         if obj.enable_ipxe:
-            blended['img_path'] = 'http://%s:%s/cobbler/links/%s' % (self.settings.server, self.settings.http_port,
+            protocol = self.settings.autoinstall_scheme
+            blended['img_path'] = '%s://%s:%s/cobbler/links/%s' % (protocol, self.settings.server, self.settings.http_port,
                                                                      distro.name)
         else:
             blended['img_path'] = os.path.join("/images", distro.name)
@@ -1303,7 +1305,8 @@ class TFTPGen:
         # FIXME: img_path should probably be moved up into the blender function to ensure they're consistently
         #        available to templates across the board
         if obj.enable_ipxe:
-            blended['img_path'] = 'http://%s:%s/cobbler/links/%s' % (self.settings.server, self.settings.http_port,
+            protocol = self.settings.autoinstall_scheme
+            blended['img_path'] = '%s://%s:%s/cobbler/links/%s' % (protocol, self.settings.server, self.settings.http_port,
                                                                      distro.name)
         else:
             blended['img_path'] = os.path.join("/images", distro.name)
@@ -1354,7 +1357,8 @@ class TFTPGen:
             remote_boot_files = utils.file_is_remote(kernel_path)
 
             if remote_boot_files:
-                loaders_path = 'http://@@http_server@@/cobbler/images/@@distro_name@@/'
+                protocol = self.settings.autoinstall_scheme
+                loaders_path = '%s://@@http_server@@/cobbler/images/@@distro_name@@/' % protocol
                 initrd_path = loaders_path + os.path.basename(initrd_path)
             else:
                 (loaders_path, kernel_name) = os.path.split(kernel_path)
