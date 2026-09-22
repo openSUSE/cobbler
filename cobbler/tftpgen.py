@@ -146,7 +146,7 @@ class TFTPGen:
         newfile = os.path.join(images_dir, img.name)
         utils.linkfile(filename, newfile, api=self.api)
 
-    def write_all_system_files(self, system, menu_items):
+    def write_all_system_files(self, system, menu_items=None):
         """
         Writes all files for tftp for a given system with the menu items handed to this method. The system must have a
         profile attached. Otherwise this method throws an error.
@@ -183,7 +183,7 @@ class TFTPGen:
                    s_<system_name>_conf
 
         :param system: The system to generate files for.
-        :param menu_items: TODO
+        :param menu_items: Optional menu items (unused in per-system configurations).
         """
         profile = system.get_conceptual_parent()
         if profile is None:
@@ -201,7 +201,7 @@ class TFTPGen:
                 image_based = True
                 image = profile
 
-        pxe_metadata = {'menu_items': menu_items}
+        pxe_metadata = {'menu_items': menu_items} if menu_items else {}
 
         # hack: s390 generates files per system not per interface
         if not image_based and distro.arch in (enums.Archs.S390, enums.Archs.S390X):
