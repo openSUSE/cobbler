@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Sep 22 08:28:19 UTC 2026 - Ondrej Holecek <oholecek@suse.com>
+
+- Support for import and manage of openSUSE Leap 16 and new Agama installer 
+
+-------------------------------------------------------------------
 Thu May 21 10:40:01 UTC 2026 - Abid Mehmood <amehmood@suse.com>
 
 - Added the distro signature for rhel10 (bsc#1265134)

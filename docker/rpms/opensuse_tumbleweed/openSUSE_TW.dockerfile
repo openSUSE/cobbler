@@ -6,8 +6,7 @@ FROM registry.opensuse.org/opensuse/tumbleweed:latest
 ENV container docker
 ENV DISTRO SUSE
 
-# Runtime & dev dependencies
-RUN zypper install -y          \
+RUN zypper install --no-recommends -y \
     acl                        \
     apache2                    \
     apache2-devel              \
@@ -31,7 +30,6 @@ RUN zypper install -y          \
     python3                    \
     python3-Sphinx             \
     python3-Cheetah3           \
-    python3-Sphinx             \
     python3-dnspython          \
     python3-coverage           \
     python3-devel              \
@@ -78,6 +76,11 @@ RUN zypper install --no-recommends -y \
     iproute2                          \
     qemu-kvm                          \
     time
+
+# apache2 only declares /srv/www/htdocs (and other runtime dirs) via tmpfiles.d, it no longer ships
+# them as literal package payload. Nothing in this image runs systemd-tmpfiles at boot, so httpd
+# would otherwise fail to start with "DocumentRoot '/srv/www/htdocs' is not a directory".
+RUN systemd-tmpfiles --create
 
 COPY ./docker/rpms/opensuse_leap/supervisord/supervisord.conf /etc/supervisord.conf
 COPY ./docker/rpms/opensuse_leap/supervisord/conf.d /etc/supervisord/conf.d
