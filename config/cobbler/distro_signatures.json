@@ -1941,6 +1941,171 @@
         "kernel_options_post": "",
         "boot_files": []
       },
+      "opensuse15.5": {
+        "signatures": [
+          ""
+        ],
+        "version_file": "openSUSE-release-15.5-(.*).rpm",
+        "version_file_regex": null,
+        "kernel_arch": "kernel-(.*)\\.rpm",
+        "kernel_arch_regex": null,
+        "supported_arches": [
+          "aarch64",
+          "x86_64",
+          "ppc64le"
+        ],
+        "supported_repo_breeds": [
+          "yum"
+        ],
+        "kernel_file": "(linux|vmlinuz(.*))",
+        "initrd_file": "initrd(.*)",
+        "isolinux_ok": false,
+        "default_autoinstall": "sample_autoyast.xml",
+        "kernel_options": "",
+        "kernel_options_post": "",
+        "boot_files": []
+      },
+      "opensuse15.6": {
+        "signatures": [
+          ""
+        ],
+        "version_file": "openSUSE-release-15.6-(.*).rpm",
+        "version_file_regex": null,
+        "kernel_arch": "kernel-(.*)\\.rpm",
+        "kernel_arch_regex": null,
+        "supported_arches": [
+          "aarch64",
+          "x86_64",
+          "ppc64le"
+        ],
+        "supported_repo_breeds": [
+          "yum"
+        ],
+        "kernel_file": "(linux|vmlinuz(.*))",
+        "initrd_file": "initrd(.*)",
+        "isolinux_ok": false,
+        "default_autoinstall": "sample_autoyast.xml",
+        "kernel_options": "",
+        "kernel_options_post": "",
+        "boot_files": []
+      },
+      "opensuse16.0": {
+        "signatures": [
+          ""
+        ],
+        "version_file": "\\.treeinfo",
+        "version_file_regex": "^name = openSUSE Leap 16\\.0$",
+        "kernel_arch": "kernel-(.*)\\.rpm",
+        "kernel_arch_regex": null,
+        "supported_arches": [
+          "aarch64",
+          "x86_64",
+          "ppc64le"
+        ],
+        "supported_repo_breeds": [
+          "yum"
+        ],
+        "kernel_file": "(linux|vmlinuz(.*))",
+        "initrd_file": "initrd(.*)",
+        "isolinux_ok": false,
+        "default_autoinstall": "sample_agama.json",
+        "kernel_options": "",
+        "kernel_options_post": "",
+        "boot_files": []
+      },
+      "opensuse16.1": {
+        "signatures": [
+          ""
+        ],
+        "version_file": "\\.treeinfo",
+        "version_file_regex": "^name = openSUSE Leap 16\\.1$",
+        "kernel_arch": "kernel-(.*)\\.rpm",
+        "kernel_arch_regex": null,
+        "supported_arches": [
+          "aarch64",
+          "x86_64",
+          "ppc64le"
+        ],
+        "supported_repo_breeds": [
+          "yum"
+        ],
+        "kernel_file": "(linux|vmlinuz(.*))",
+        "initrd_file": "initrd(.*)",
+        "isolinux_ok": false,
+        "default_autoinstall": "sample_agama.json",
+        "kernel_options": "",
+        "kernel_options_post": "",
+        "boot_files": []
+      },
+      "leapmicro5.3": {
+        "signatures": [
+          ""
+        ],
+        "version_file": "Leap-Micro-release-5.3(.*).rpm",
+        "version_file_regex": null,
+        "kernel_arch": "kernel-(.*)\\.rpm",
+        "kernel_arch_regex": null,
+        "supported_arches": [
+          "aarch64",
+          "x86_64"
+        ],
+        "supported_repo_breeds": [
+          "yum"
+        ],
+        "kernel_file": "(linux|vmlinuz(.*))",
+        "initrd_file": "initrd(.*)",
+        "isolinux_ok": false,
+        "default_autoinstall": "sample_autoyast.xml",
+        "kernel_options": "",
+        "kernel_options_post": "",
+        "boot_files": []
+      },
+      "leapmicro5.4": {
+        "signatures": [
+          ""
+        ],
+        "version_file": "Leap-Micro-release-5.4(.*).rpm",
+        "version_file_regex": null,
+        "kernel_arch": "kernel-(.*)\\.rpm",
+        "kernel_arch_regex": null,
+        "supported_arches": [
+          "aarch64",
+          "x86_64"
+        ],
+        "supported_repo_breeds": [
+          "yum"
+        ],
+        "kernel_file": "(linux|vmlinuz(.*))",
+        "initrd_file": "initrd(.*)",
+        "isolinux_ok": false,
+        "default_autoinstall": "sample_autoyast.xml",
+        "kernel_options": "",
+        "kernel_options_post": "",
+        "boot_files": []
+      },
+      "leapmicro5.5": {
+        "signatures": [
+          ""
+        ],
+        "version_file": "Leap-Micro-release-5.5(.*).rpm",
+        "version_file_regex": null,
+        "kernel_arch": "kernel-(.*)\\.rpm",
+        "kernel_arch_regex": null,
+        "supported_arches": [
+          "aarch64",
+          "x86_64"
+        ],
+        "supported_repo_breeds": [
+          "yum"
+        ],
+        "kernel_file": "(linux|vmlinuz(.*))",
+        "initrd_file": "initrd(.*)",
+        "isolinux_ok": false,
+        "default_autoinstall": "sample_autoyast.xml",
+        "kernel_options": "",
+        "kernel_options_post": "",
+        "boot_files": []
+      },
       "sles10generic": {
         "signatures": [
           "suse"
