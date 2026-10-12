@@ -856,7 +856,7 @@ class TFTPGen:
             if system is None:
                 utils.kopts_overwrite(kopts, self.settings.server, distro.breed)
             else:
-                utils.kopts_overwrite(kopts, self.settings.server, distro.breed, system.name)
+                utils.kopts_overwrite(kopts, self.settings.server, distro.breed, system.name, self.settings.autoinstall_scheme)
 
         # support additional initrd= entries in kernel options.
         if "initrd" in kopts:
