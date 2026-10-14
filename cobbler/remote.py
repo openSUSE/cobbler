@@ -1431,7 +1431,7 @@ class CobblerXMLRPCInterface:
                     results.update(self._transaction_descendants(token, dep_item))
         return list(results)
 
-    def remove_item(self, what: str, name: str, token: str, recursive: bool = True):
+    def remove_item(self, what: str, name: str, token: str, recursive: bool = True, with_sync: bool = True):
         """
         Deletes an item from a collection.
         Note that this requires the name of the distro, not an item handle.
@@ -1440,6 +1440,7 @@ class CobblerXMLRPCInterface:
         :param name: The name of the item to remove.
         :param token: The API-token obtained via the login() method.
         :param recursive: If items which are depending on this one should be erased too.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action was successful.
         """
         self._log("remove_item (%s, recursive=%s)" % (what, recursive), name=name, token=token)
@@ -1459,107 +1460,116 @@ class CobblerXMLRPCInterface:
 
         obj = self.api.get_item(what, name)
         self.check_access(token, "remove_%s" % what, obj)
-        self.api.remove_item(what, name, delete=True, with_triggers=True, recursive=recursive)
+        self.api.remove_item(what, name, delete=True, with_triggers=True, recursive=recursive, with_sync=with_sync)
         return True
 
-    def remove_distro(self, name: str, token: str, recursive: bool = True):
+    def remove_distro(self, name: str, token: str, recursive: bool = True, with_sync: bool = True):
         """
         Deletes a distribution from Cobbler.
 
         :param name: The name of the item to remove.
         :param token: The API-token obtained via the login() method.
         :param recursive: If items which are depending on this one should be erased too.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action was successful.
         """
-        return self.remove_item("distro", name, token, recursive)
+        return self.remove_item("distro", name, token, recursive, with_sync=with_sync)
 
-    def remove_profile(self, name: str, token: str, recursive: bool = True):
+    def remove_profile(self, name: str, token: str, recursive: bool = True, with_sync: bool = True):
         """
         Deletes a profile from Cobbler.
 
         :param name: The name of the item to remove.
         :param token: The API-token obtained via the login() method.
         :param recursive: If items which are depending on this one should be erased too.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action was successful.
         """
-        return self.remove_item("profile", name, token, recursive)
+        return self.remove_item("profile", name, token, recursive, with_sync=with_sync)
 
-    def remove_system(self, name: str, token: str, recursive: bool = True):
+    def remove_system(self, name: str, token: str, recursive: bool = True, with_sync: bool = True):
         """
         Deletes a system from Cobbler.
 
         :param name: The name of the item to remove.
         :param token: The API-token obtained via the login() method.
         :param recursive: If items which are depending on this one should be erased too.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action was successful.
         """
-        return self.remove_item("system", name, token, recursive)
+        return self.remove_item("system", name, token, recursive, with_sync=with_sync)
 
-    def remove_repo(self, name: str, token: str, recursive: bool = True):
+    def remove_repo(self, name: str, token: str, recursive: bool = True, with_sync: bool = True):
         """
         Deletes a repository from Cobbler.
 
         :param name: The name of the item to remove.
         :param token: The API-token obtained via the login() method.
         :param recursive: If items which are depending on this one should be erased too.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action was successful.
         """
-        return self.remove_item("repo", name, token, recursive)
+        return self.remove_item("repo", name, token, recursive, with_sync=with_sync)
 
-    def remove_image(self, name: str, token: str, recursive: bool = True):
+    def remove_image(self, name: str, token: str, recursive: bool = True, with_sync: bool = True):
         """
         Deletes an image from Cobbler.
 
         :param name: The name of the item to remove.
         :param token: The API-token obtained via the login() method.
         :param recursive: If items which are depending on this one should be erased too.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action was successful.
         """
-        return self.remove_item("image", name, token, recursive)
+        return self.remove_item("image", name, token, recursive, with_sync=with_sync)
 
-    def remove_mgmtclass(self, name: str, token: str, recursive: bool = True):
+    def remove_mgmtclass(self, name: str, token: str, recursive: bool = True, with_sync: bool = True):
         """
         Deletes a managementclass from Cobbler.
 
         :param name: The name of the item to remove.
         :param token: The API-token obtained via the login() method.
         :param recursive: If items which are depending on this one should be erased too.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action was successful.
         """
-        return self.remove_item("mgmtclass", name, token, recursive)
+        return self.remove_item("mgmtclass", name, token, recursive, with_sync=with_sync)
 
-    def remove_package(self, name: str, token: str, recursive: bool = True):
+    def remove_package(self, name: str, token: str, recursive: bool = True, with_sync: bool = True):
         """
         Deletes a package from Cobbler.
 
         :param name: The name of the item to remove.
         :param token: The API-token obtained via the login() method.
         :param recursive: If items which are depending on this one should be erased too.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action was successful.
         """
-        return self.remove_item("package", name, token, recursive)
+        return self.remove_item("package", name, token, recursive, with_sync=with_sync)
 
-    def remove_file(self, name: str, token: str, recursive: bool = True):
+    def remove_file(self, name: str, token: str, recursive: bool = True, with_sync: bool = True):
         """
         Deletes a file from Cobbler.
 
         :param name: The name of the item to remove.
         :param token: The API-token obtained via the login() method.
         :param recursive: If items which are depending on this one should be erased too.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action was successful.
         """
-        return self.remove_item("file", name, token, recursive)
+        return self.remove_item("file", name, token, recursive, with_sync=with_sync)
 
-    def remove_menu(self, name: str, token: str, recursive: bool = True):
+    def remove_menu(self, name: str, token: str, recursive: bool = True, with_sync: bool = True):
         """
         Deletes a menu from Cobbler.
 
         :param name: The name of the item to remove.
         :param token: The API-token obtained via the login() method.
         :param recursive: If items which are depending on this one should be erased too.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action was successful.
         """
-        return self.remove_item("menu", name, token, recursive)
+        return self.remove_item("menu", name, token, recursive, with_sync=with_sync)
 
     def copy_item(self, what: str, object_id: str, newname: str, token: str):
         """
@@ -2341,7 +2351,7 @@ class CobblerXMLRPCInterface:
             system_to_edit.rename_interface(attributes.get("interface", ""),
                                             attributes.get("rename_interface", ""))
 
-    def save_item(self, what, object_id, token, editmode: str = "bypass"):
+    def save_item(self, what, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2350,6 +2360,7 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
         self._log("save_item(%s)" % what, object_id=object_id, token=token)
@@ -2359,12 +2370,12 @@ class CobblerXMLRPCInterface:
             # the object will be saved in commit_transaction()
             return True
         if editmode == "new":
-            self.api.add_item(what, obj, check_for_duplicate_names=True)
+            self.api.add_item(what, obj, check_for_duplicate_names=True, with_sync=with_sync)
         else:
-            self.api.add_item(what, obj)
+            self.api.add_item(what, obj, with_sync=with_sync)
         return True
 
-    def save_distro(self, object_id, token, editmode: str = "bypass"):
+    def save_distro(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2372,11 +2383,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("distro", object_id, token, editmode=editmode)
+        return self.save_item("distro", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_profile(self, object_id, token, editmode: str = "bypass"):
+    def save_profile(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2384,11 +2396,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("profile", object_id, token, editmode=editmode)
+        return self.save_item("profile", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_system(self, object_id, token, editmode: str = "bypass"):
+    def save_system(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2396,11 +2409,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("system", object_id, token, editmode=editmode)
+        return self.save_item("system", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_image(self, object_id, token, editmode: str = "bypass"):
+    def save_image(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2408,11 +2422,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("image", object_id, token, editmode=editmode)
+        return self.save_item("image", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_repo(self, object_id, token, editmode: str = "bypass"):
+    def save_repo(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2420,11 +2435,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("repo", object_id, token, editmode=editmode)
+        return self.save_item("repo", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_mgmtclass(self, object_id, token, editmode: str = "bypass"):
+    def save_mgmtclass(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2432,11 +2448,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("mgmtclass", object_id, token, editmode=editmode)
+        return self.save_item("mgmtclass", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_package(self, object_id, token, editmode: str = "bypass"):
+    def save_package(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2444,11 +2461,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("package", object_id, token, editmode=editmode)
+        return self.save_item("package", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_file(self, object_id, token, editmode: str = "bypass"):
+    def save_file(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2456,11 +2474,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("file", object_id, token, editmode=editmode)
+        return self.save_item("file", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_menu(self, object_id, token, editmode="bypass"):
+    def save_menu(self, object_id, token, editmode="bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2468,9 +2487,10 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("menu", object_id, token, editmode=editmode)
+        return self.save_item("menu", object_id, token, editmode=editmode, with_sync=with_sync)
 
     def get_autoinstall_templates(self, token=None, **rest):
         """

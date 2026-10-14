@@ -113,10 +113,8 @@ class _InTftpdManager(ManagerModule):
         Write out new ``pxelinux.cfg`` files to the TFTP server folder (or grub/system/<mac> in grub case)
 
         :param system: The system to be added.
-        :param menu_items: The menu items to add
+        :param menu_items: The menu items to add (optional, unused for single system configs).
         """
-        if not menu_items:
-            menu_items = self.tftpgen.get_menu_items()
         self.tftpgen.write_all_system_files(system, menu_items)
         # generate any templates listed in the distro
         self.tftpgen.write_templates(system)
@@ -149,9 +147,8 @@ class _InTftpdManager(ManagerModule):
                 continue
             system_objs.append(system_obj)
 
-        menu_items = self.tftpgen.get_menu_items()
         for system in system_objs:
-            self.sync_single_system(system, menu_items)
+            self.sync_single_system(system)
 
         self.logger.info("generating PXE menu structure")
         self.tftpgen.make_pxe_menu()
@@ -184,10 +181,8 @@ class _InTftpdManager(ManagerModule):
 
         # the actual pxelinux.cfg files, for each interface
         self.logger.info("generating PXE configuration files - this can take a while (to see the progress check the cobbler logs)")
-        menu_items = self.tftpgen.get_menu_items()
-
         for system in self.systems:
-            pool.submit(self.tftpgen.write_all_system_files, system, menu_items)
+            pool.submit(self.tftpgen.write_all_system_files, system)
 
         pool.shutdown()
 

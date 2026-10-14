@@ -120,6 +120,12 @@ class CobblerSync:
         utils.run_triggers(self.api, None, "/var/lib/cobbler/triggers/sync/post/*")
         utils.run_triggers(self.api, None, "/var/lib/cobbler/triggers/change/*")
 
+    def sync(self, verbose: bool = False):
+        """
+        Trigger synchronization. Alias for run().
+        """
+        return self.run()
+
     def run(self):
         """
         Syncs the current configuration file with the config tree.
