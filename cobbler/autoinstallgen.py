@@ -102,8 +102,6 @@ class AutoInstallationGen:
         :return: The generated AutoYaST XML file.
         """
         self.api.logger.info("AutoYaST XML file found. Checkpoint: profile=%s system=%s" % (profile, system))
-        runpost = "\ncurl \"http://%s/cblr/svc/op/trig/mode/post/%s/%s\" > /dev/null"
-        runpre = "\ncurl \"http://%s/cblr/svc/op/trig/mode/pre/%s/%s\" > /dev/null"
 
         what = "profile"
         blend_this = profile
@@ -112,6 +110,7 @@ class AutoInstallationGen:
             blend_this = system
         blended = utils.blender(self.api, False, blend_this)
         srv = blended["http_server"]
+        protocol = self.settings.autoinstall_scheme
 
         document = xml.dom.minidom.parseString(raw_data)
 
@@ -156,8 +155,10 @@ class AutoInstallationGen:
 
         if self.settings.run_install_triggers:
             # notify cobblerd when we start/finished the installation
-            self.addAutoYaSTScript(document, "pre-scripts", runpre % (srv, what, name))
-            self.addAutoYaSTScript(document, "init-scripts", runpost % (srv, what, name))
+            runpre = "\ncurl \"%s://%s/cblr/svc/op/trig/mode/pre/%s/%s\" > /dev/null" % (protocol, srv, what, name)
+            runpost = "\ncurl \"%s://%s/cblr/svc/op/trig/mode/post/%s/%s\" > /dev/null" % (protocol, srv, what, name)
+            self.addAutoYaSTScript(document, "pre-scripts", runpre)
+            self.addAutoYaSTScript(document, "init-scripts", runpost)
 
         return document.toxml()
 
@@ -195,7 +196,8 @@ class AutoInstallationGen:
                         yumopts += " %s=%s" % (opt, repo_obj.yumopts[opt])
                 if 'enabled' not in repo_obj.yumopts or repo_obj.yumopts['enabled'] == '1':
                     if repo_obj.mirror_locally:
-                        baseurl = "http://%s/cobbler/repo_mirror/%s" % (blended["http_server"], repo_obj.name)
+                        autoinstall_scheme = self.settings.autoinstall_scheme
+                        baseurl = "%s://%s/cobbler/repo_mirror/%s" % (autoinstall_scheme, blended["http_server"], repo_obj.name)
                         if baseurl not in included:
                             buf += "repo --name=%s --baseurl=%s\n" % (repo_obj.name, baseurl)
                         included[baseurl] = 1
@@ -239,10 +241,11 @@ class AutoInstallationGen:
             return ""
 
         blended = utils.blender(self.api, False, obj)
+        autoinstall_scheme = self.settings.autoinstall_scheme
         if is_profile:
-            url = "http://%s/cblr/svc/op/yum/profile/%s" % (blended["http_server"], obj.name)
+            url = "%s://%s/cblr/svc/op/yum/profile/%s" % (autoinstall_scheme, blended["http_server"], obj.name)
         else:
-            url = "http://%s/cblr/svc/op/yum/system/%s" % (blended["http_server"], obj.name)
+            url = "%s://%s/cblr/svc/op/yum/system/%s" % (autoinstall_scheme, blended["http_server"], obj.name)
 
         return "curl \"%s\" --output /etc/yum.repos.d/cobbler-config.repo\n" % (url)
 

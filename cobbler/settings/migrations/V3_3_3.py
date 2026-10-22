@@ -235,6 +235,7 @@ schema = Schema(
         Optional("windows_enabled", default=False): bool,
         Optional("windows_template_dir", default="/etc/cobbler/windows"): str,
         Optional("samba_distro_share", default="DISTRO"): str,
+        Optional("autoinstall_scheme", default="http"): str,
     },
     ignore_extra_keys=True,
 )

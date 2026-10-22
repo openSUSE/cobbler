@@ -2066,7 +2066,7 @@ def compare_versions_gt(ver1: str, ver2: str) -> bool:
     return versiontuple(ver1) > versiontuple(ver2)
 
 
-def kopts_overwrite(kopts: dict, cobbler_server_hostname: str = "", distro_breed: str = "", system_name: str = ""):
+def kopts_overwrite(kopts: dict, cobbler_server_hostname: str = "", distro_breed: str = "", system_name: str = "", info_protocol: str = "http"):
     """
     SUSE is not using 'text'. Instead 'textmode' is used as kernel option.
 
@@ -2093,7 +2093,7 @@ def kopts_overwrite(kopts: dict, cobbler_server_hostname: str = "", distro_breed
             kopts['textmode'] = ['1']
         if system_name and cobbler_server_hostname:
             # only works if pxe_just_once is enabled in global settings
-            kopts['info'] = 'http://%s/cblr/svc/op/nopxe/system/%s' % (cobbler_server_hostname, system_name)
+            kopts['info'] = '%s://%s/cblr/svc/op/nopxe/system/%s' % (info_protocol, cobbler_server_hostname, system_name)
 
 
 def is_str_int(value: str) -> bool:

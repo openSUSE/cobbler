@@ -643,7 +643,8 @@ class _ImportSignatureManager(ManagerModule):
                     self.logger.warning(
                         "symlink creation failed: %s, %s", base, dest_link
                     )
-            tree = "http://@@http_server@@/cblr/links/%s" % distribution.name
+            protocol = self.api.settings().autoinstall_scheme
+            tree = "%s://@@http_server@@/cblr/links/%s" % (protocol, distribution.name)
             self.set_install_tree(distribution, tree)
         else:
             # Where we assign the automated installation file source is relative to our current directory and the input
@@ -785,8 +786,9 @@ class _ImportSignatureManager(ManagerModule):
             fname = os.path.join(self.settings.webdir,
                                  "distro_mirror", "config", "%s-%s.repo" % (distribution.name, counter))
 
-            repo_url = "http://@@http_server@@/cobbler/distro_mirror/config/%s-%s.repo" % (distribution.name, counter)
-            repo_url2 = "http://@@http_server@@/cobbler/distro_mirror/%s" % urlseg
+            protocol = self.api.settings().autoinstall_scheme
+            repo_url = "%s://@@http_server@@/cobbler/distro_mirror/config/%s-%s.repo" % (protocol, distribution.name, counter)
+            repo_url2 = "%s://@@http_server@@/cobbler/distro_mirror/%s" % (protocol, urlseg)
 
             distribution.source_repos.append([repo_url, repo_url2])
 
@@ -801,7 +803,7 @@ class _ImportSignatureManager(ManagerModule):
             with open(fname, "w+") as config_file:
                 config_file.write("[core-%s]\n" % counter)
                 config_file.write("name=core-%s\n" % counter)
-                config_file.write("baseurl=http://@@http_server@@/cobbler/distro_mirror/%s\n" % urlseg)
+                config_file.write("baseurl=%s://@@http_server@@/cobbler/distro_mirror/%s\n" % (protocol, urlseg))
                 config_file.write("enabled=1\n")
                 config_file.write("gpgcheck=0\n")
                 config_file.write("priority=$yum_distro_priority\n")
