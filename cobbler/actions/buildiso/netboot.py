@@ -18,7 +18,7 @@ class AppendLineBuilder:
     This class is meant to be initiated for a single append line. Afterwards the object should be disposed.
     """
 
-    def __init__(self, distro_name: str, data: dict):
+    def __init__(self, distro_name: str, data: dict, scheme: str = "http"):
         self.append_line = ""
         self.data = data
         self.distro_name = distro_name
@@ -28,6 +28,7 @@ class AppendLineBuilder:
         self.system_netmask = None
         self.system_gw = None
         self.system_dns = None
+        self.scheme = scheme
 
     def _system_int_append_line(self):
         """
@@ -258,7 +259,8 @@ class AppendLineBuilder:
             self.append_line += " install=%s" % self.data["kernel_options"]["install"]
             del self.data["kernel_options"]["install"]
         else:
-            self.append_line += " install=http://%s:%s/cblr/links/%s" % (
+            self.append_line += " install=%s://%s:%s/cblr/links/%s" % (
+                self.scheme,
                 self.data["server"],
                 self.data["http_port"],
                 self.dist.name,
@@ -392,7 +394,8 @@ class AppendLineBuilder:
                 self.append_line += f" install={install_options}"
                 del self.data["kernel_options"]["install"]
             else:
-                self.append_line += " install=http://%s:%s/cblr/links/%s" % (
+                self.append_line += " install=%s://%s:%s/cblr/links/%s" % (
+                    self.scheme,
                     self.data["server"],
                     self.data["http_port"],
                     self.distro_name,
@@ -514,15 +517,17 @@ class NetbootBuildiso(buildiso.BuildIso):
                 data["kernel_options"], self.api.settings().server, distro.breed
             )
 
+        autoinstall_scheme = self.api.settings().autoinstall_scheme
         if not re.match(r"[a-z]+://.*", data["autoinstall"]):
-            data["autoinstall"] = "http://%s:%s/cblr/svc/op/autoinstall/profile/%s" % (
+            data["autoinstall"] = "%s://%s:%s/cblr/svc/op/autoinstall/profile/%s" % (
+                autoinstall_scheme,
                 data["server"],
                 data["http_port"],
                 profile.name,
             )
 
         append_line = AppendLineBuilder(
-            distro_name=distroname, data=data
+            distro_name=distroname, data=data, scheme=autoinstall_scheme
         ).generate_profile(distro.breed, distro.os_version)
         kernel_path = f"/{distroname}.krn"
         initrd_path = f"/{distroname}.img"
@@ -579,14 +584,15 @@ class NetbootBuildiso(buildiso.BuildIso):
         distroname = self.make_shorter(distro.name)
 
         data = utils.blender(self.api, False, system)
+        autoinstall_scheme = self.api.settings().autoinstall_scheme
         if not re.match(r"[a-z]+://.*", data["autoinstall"]):
             data["autoinstall"] = (
-                f"http://{data['server']}:{data['http_port']}/cblr/svc/op/autoinstall/"
+                f"{autoinstall_scheme}://{data['server']}:{data['http_port']}/cblr/svc/op/autoinstall/"
                 f"system/{system.name}"
             )
 
         append_line = AppendLineBuilder(
-            distro_name=distroname, data=data
+            distro_name=distroname, data=data, scheme=autoinstall_scheme
         ).generate_system(distro, system, exclude_dns)
         kernel_path = f"/{distroname}.krn"
         initrd_path = f"/{distroname}.img"

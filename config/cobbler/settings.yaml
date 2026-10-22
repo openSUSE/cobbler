@@ -594,6 +594,14 @@ signature_url: "https://cobbler.github.io/signatures/3.0.x/latest.json"
 # editing objects.
 cache_enabled: true
 
+# This setting controls the protocol (http or https) used to generate URLs for
+# autoinstallation files and repository mirrors.
+# Valid values are: "http" or "https"
+# Note: This setting only changes the URL generation. It does NOT configure
+# your web server for HTTPS. You must configure Apache/nginx separately.
+# Default: "http"
+autoinstall_scheme: "http"
+
 # Include other configuration snippets. Overwriting a key from this file in a childfile will overwrite the value from
 # this file.
 include: [ "/etc/cobbler/settings.d/*.settings" ]
