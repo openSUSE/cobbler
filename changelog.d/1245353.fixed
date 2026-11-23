@@ -1,0 +1,1 @@
+Fix the fail on profile check on buildiso when --standalone and --airgapped parameters specified (bsc#1245353)
