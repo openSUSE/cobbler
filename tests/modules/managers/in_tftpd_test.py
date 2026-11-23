@@ -122,6 +122,7 @@ def test_manager_sync_single_system(mocker, api_mock_tftp, reset_singleton):
     manager_obj.sync_single_system(None, None)
 
     # Assert
+    assert manager_obj.tftpgen.get_menu_items.call_count == 0
     assert manager_obj.tftpgen.write_all_system_files.call_count == 1
     assert manager_obj.tftpgen.write_templates.call_count == 1
 
@@ -156,7 +157,7 @@ def test_sync_systems(mocker, api_mock_tftp, input_systems, input_verbose, expec
     manager_obj.sync_systems(input_systems, input_verbose)
 
     # Assert
-    assert manager_obj.tftpgen.get_menu_items.call_count == 1
+    assert manager_obj.tftpgen.get_menu_items.call_count == 0
     assert single_system_mock.call_count == 1
     assert manager_obj.tftpgen.make_pxe_menu.call_count == 1
 
@@ -174,6 +175,6 @@ def test_manager_sync(mocker, api_mock_tftp, reset_singleton):
     assert manager_obj.tftpgen.copy_bootloaders.call_count == 1
     assert manager_obj.tftpgen.copy_single_distro_files.call_count == 1
     assert manager_obj.tftpgen.copy_images.call_count == 1
-    assert manager_obj.tftpgen.get_menu_items.call_count == 1
+    assert manager_obj.tftpgen.get_menu_items.call_count == 0
     assert manager_obj.tftpgen.write_all_system_files.call_count == 1
     assert manager_obj.tftpgen.make_pxe_menu.call_count == 1

@@ -74,6 +74,7 @@ class Menus(collection.Collection):
             for item in items:
                 item.menu = ""
 
+        kids = []
         if recursive:
             kids = obj.descendants
             kids.sort(key=lambda x: -x.depth)
@@ -84,6 +85,7 @@ class Menus(collection.Collection):
                     recursive=False,
                     delete=with_delete,
                     with_triggers=with_triggers,
+                    with_sync=False,
                 )
 
         if with_delete:
@@ -100,5 +102,8 @@ class Menus(collection.Collection):
                 utils.run_triggers(self.api, obj, "/var/lib/cobbler/triggers/delete/menu/post/*", [])
                 utils.run_triggers(self.api, obj, "/var/lib/cobbler/triggers/change/*", [])
             if with_sync:
-                lite_sync = self.api.get_sync()
-                lite_sync.remove_single_menu()
+                if recursive and kids:
+                    self.api.get_sync().sync(verbose=False)
+                else:
+                    lite_sync = self.api.get_sync()
+                    lite_sync.remove_single_menu()

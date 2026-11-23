@@ -68,15 +68,16 @@ class Distros(collection.Collection):
                     raise CX(f"removal would orphan profile: {profile.name}")
 
         kernel = obj.kernel
+        kids = []
         if recursive:
             kids = self.api.find_items("profile", {"distro": obj.name})
             for k in kids:
-                self.api.remove_profile(k, recursive=recursive, delete=with_delete, with_triggers=with_triggers)
+                self.api.remove_profile(k, recursive=recursive, delete=with_delete, with_triggers=with_triggers, with_sync=False)
 
         if with_delete:
             if with_triggers:
                 utils.run_triggers(self.api, obj, "/var/lib/cobbler/triggers/delete/distro/pre/*", [])
-            if with_sync:
+            if with_sync and not (recursive and kids):
                 lite_sync = self.api.get_sync()
                 lite_sync.remove_single_distro(name)
         self.lock.acquire()
@@ -114,3 +115,8 @@ class Distros(collection.Collection):
                     found = True
             if not found:
                 utils.rmtree(path)
+
+        if with_delete and with_sync and recursive and kids:
+            lite_sync = self.api.get_sync()
+            lite_sync.remove_single_distro(name)
+            self.api.get_sync().sync(verbose=False)

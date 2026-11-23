@@ -57,17 +57,15 @@ class Images(collection.Collection):
                 if system.image is not None and system.image == name:
                     raise CX(f"removal would orphan system: {system.name}")
 
+        kids = []
         if recursive:
             kids = self.api.find_items("system", {"image": obj.name})
             for k in kids:
-                self.api.remove_system(k, recursive=True)
+                self.api.remove_system(k, recursive=True, with_sync=False)
 
         if with_delete:
             if with_triggers:
                 utils.run_triggers(self.api, obj, "/var/lib/cobbler/triggers/delete/image/pre/*", [])
-            if with_sync:
-                lite_sync = self.api.get_sync()
-                lite_sync.remove_single_image(name)
 
         self.lock.acquire()
         try:
@@ -80,3 +78,9 @@ class Images(collection.Collection):
             if with_triggers:
                 utils.run_triggers(self.api, obj, "/var/lib/cobbler/triggers/delete/image/post/*", [])
                 utils.run_triggers(self.api, obj, "/var/lib/cobbler/triggers/change/*", [])
+            if with_sync:
+                if recursive and kids:
+                    self.api.get_sync().sync(verbose=False)
+                else:
+                    lite_sync = self.api.get_sync()
+                    lite_sync.remove_single_image(name)

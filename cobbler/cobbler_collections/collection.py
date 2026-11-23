@@ -386,10 +386,8 @@ class Collection:
             with_sync = False
 
         # Avoid adding objects to the collection with the same name
-        if check_for_duplicate_names:
-            for item in self.listing.values():
-                if item.name == ref.name:
-                    raise CX("An object already exists with that name. Try 'edit'?")
+        if check_for_duplicate_names and ref.name in self.listing:
+            raise CX("An object already exists with that name. Try 'edit'?")
 
         if ref.COLLECTION_TYPE != self.collection_type():
             raise TypeError("API error: storing wrong data type in collection")

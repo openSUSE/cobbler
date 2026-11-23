@@ -61,6 +61,7 @@ class Profiles(collection.Collection):
         if obj is None:
             raise CX("cannot delete an object that does not exist: %s" % name)
 
+        kids = []
         if recursive:
             kids = obj.descendants
             kids.sort(key=lambda x: -x.depth)
@@ -71,6 +72,7 @@ class Profiles(collection.Collection):
                     recursive=False,
                     delete=with_delete,
                     with_triggers=with_triggers,
+                    with_sync=False,
                 )
 
         if with_delete:
@@ -89,5 +91,8 @@ class Profiles(collection.Collection):
                 utils.run_triggers(self.api, obj, "/var/lib/cobbler/triggers/delete/profile/post/*", [])
                 utils.run_triggers(self.api, obj, "/var/lib/cobbler/triggers/change/*", [])
             if with_sync:
-                lite_sync = self.api.get_sync()
-                lite_sync.remove_single_profile(name)
+                if recursive and kids:
+                    self.api.get_sync().sync(verbose=False)
+                else:
+                    lite_sync = self.api.get_sync()
+                    lite_sync.remove_single_profile(name, rebuild_menu=rebuild_menu)
