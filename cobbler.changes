@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Nov 23 13:53:37 UTC 2026 - Victor Zhestkov <vzhestkov@suse.com>
+
+- Fix the fail on profile check on buildiso when --standalone and
+  --airgapped parameters specified (bsc#1245353)
+
+-------------------------------------------------------------------
 Wed Oct 21 14:18:14 UTC 2026 - Yeray Gutiérrez Cedrés <yeray.gutierrez@suse.com>
 
 - Allow HTTPS AutoYast URLs (bsc#1271394)

@@ -199,6 +199,49 @@ def test_filter_profile_disabled(cobbler_api, create_distro, create_profile):
     assert expected_result == result
 
 
+def test_parse_profiles_nested(cobbler_api, create_distro, create_profile):
+    # Arrange
+    test_distro = create_distro()
+    parent = create_profile(test_distro.name, name="parent_profile")
+    child = create_profile(profile_name=parent.name, name="child_profile")
+    build_iso = buildiso.BuildIso(cobbler_api)
+
+    # Act
+    result = build_iso.parse_profiles([child.name], test_distro)
+
+    # Assert
+    assert result == [child]
+
+
+def test_parse_profiles_default_children(cobbler_api, create_distro, create_profile):
+    # Arrange
+    test_distro = create_distro()
+    test_profile = create_profile(test_distro.name)
+    build_iso = buildiso.BuildIso(cobbler_api)
+
+    # Act
+    result = build_iso.parse_profiles("", test_distro)
+
+    # Assert
+    assert result == [test_profile]
+
+
+def test_parse_profiles_orphans(cobbler_api, create_distro, create_profile):
+    # Arrange
+    test_distro = create_distro()
+    create_profile(test_distro.name, name="inside_profile")
+    other_distro = create_distro(name="other_distro")
+    create_profile(other_distro.name, name="outside_b")
+    create_profile(other_distro.name, name="outside_a")
+    build_iso = buildiso.BuildIso(cobbler_api)
+
+    # Act & Assert
+    with pytest.raises(ValueError, match="Extra --profiles: outside_a,outside_b"):
+        build_iso.parse_profiles(
+            ["inside_profile", "outside_b", "outside_a"], test_distro
+        )
+
+
 def test_netboot_run(
     cobbler_api,
     create_distro,
