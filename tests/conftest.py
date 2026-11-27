@@ -40,7 +40,10 @@ def reset_items(cobbler_api):
         cobbler_api.remove_system(system.name)
     for image in cobbler_api.images():
         cobbler_api.remove_image(image.name)
-    for profile in cobbler_api.profiles():
+    # Remove the deepest profiles first, otherwise a sub-profile
+    # is left without a parent and the PXE menu generation
+    # during the removal of its parent fails.
+    for profile in sorted(cobbler_api.profiles(), key=lambda x: -x.depth):
         cobbler_api.remove_profile(profile.name)
     for distro in cobbler_api.distros():
         cobbler_api.remove_distro(distro.name)
